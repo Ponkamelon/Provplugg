@@ -12,6 +12,10 @@ import {
 import { regenerateQuestionsAction } from "@/app/actions/studySets";
 import type { Tables } from "@/lib/database.types";
 
+// regenerateQuestionsAction (Försök igen) kör samma AI-anrop som kan ta
+// 15–40 sekunder — samma anledning som i admin/prov/ny/page.tsx.
+export const maxDuration = 60;
+
 type StudySetWithChapter = Tables<"study_sets"> & {
   chapters: (Tables<"chapters"> & { subjects: Tables<"subjects"> | null }) | null;
 };
