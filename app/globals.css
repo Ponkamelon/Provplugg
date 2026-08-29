@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-sand-deep;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    @apply bg-sand text-navy font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-navy;
+  }
+
+  /* Visible keyboard focus everywhere — never remove without replacing */
+  :focus-visible {
+    outline: 3px solid theme("colors.coral.DEFAULT");
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /* "Notebook page" card: soft shadow + hairline border, torn top edge */
+  .notebook-card {
+    @apply relative bg-white/70 backdrop-blur-sm rounded-card border border-sand-deep shadow-card;
+  }
+
+  .notebook-card::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-image: radial-gradient(
+      circle at 10px 0,
+      transparent 9px,
+      var(--tw-torn-color, #f4ebd6) 9px
+    );
+    background-size: 20px 10px;
+    background-repeat: repeat-x;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-coral px-6 py-3 font-sans font-semibold text-white shadow-card transition-transform hover:bg-coral-dark active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border-2 border-ocean px-6 py-3 font-sans font-semibold text-ocean transition-colors hover:bg-ocean hover:text-white active:scale-[0.98];
+  }
+
+  .field-label {
+    @apply mb-1 block text-sm font-medium text-navy/80;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-sand-deep bg-white px-4 py-3 text-navy placeholder:text-navy/40 focus:border-ocean focus:outline-none;
+  }
+}
