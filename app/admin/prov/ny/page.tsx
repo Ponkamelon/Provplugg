@@ -2,6 +2,14 @@ import Link from "next/link";
 import { createStudySetAction } from "@/app/actions/studySets";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { regenerateQuestionsAction } from "@/app/actions/studySets";
+import type { Tables } from "@/lib/database.types";
+
+// regenerateQuestionsAction (Försök igen) kör samma AI-anrop som kan ta
+// 15–40 sekunder — samma anledning som i admin/prov/ny/page.tsx.
+export const maxDuration = 60;
+
+type StudySetWithChapter = Tables<"study_sets"> & {
 
 const SUGGESTED_SUBJECTS = [
   "Matematik",
