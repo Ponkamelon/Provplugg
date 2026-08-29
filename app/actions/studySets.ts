@@ -6,7 +6,10 @@ import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { generateQuestionsFromText } from "@/lib/ai/generateQuestions";
 import { jaccardSimilarity, DUPLICATE_THRESHOLD } from "@/lib/ai/dedupe";
-
+// AI-frågegenereringen tar ofta 15–40 sekunder för 15–25 frågor.
+// Vercels standardtimeout (10s) är för kort för det — 60 är max på
+// Hobby-planen, se https://vercel.com/docs/functions/limitations
+export const maxDuration = 60;
 /**
  * Kör AI-genereringen och sparar frågorna. Dublettkontroll (sektion 36)
  * mot både redan sparade frågor och andra frågor i samma batch.
