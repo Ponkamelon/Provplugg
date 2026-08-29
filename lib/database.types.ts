@@ -11,10 +11,7 @@ export type Json =
   | Json[];
 
 export type Database = {
-  __InternalSupabase: {
-    PostgrestVersion: "14.17";
-  };
-  public: {
+    public: {
     Tables: {
       answers: {
         Row: {
