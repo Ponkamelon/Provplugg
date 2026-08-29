@@ -103,7 +103,11 @@ export async function createStudySetAction(formData: FormData) {
       .single();
 
     if (subjectError || !newSubject) {
-      redirect(`/admin/prov/ny?error=${encodeURIComponent("Kunde inte skapa ämnet.")}`);
+      redirect(
+        `/admin/prov/ny?error=${encodeURIComponent(
+          `Kunde inte skapa ämnet: ${subjectError?.message ?? "okänt fel"}`,
+        )}`,
+      );
     }
     subject = newSubject;
   }
@@ -115,7 +119,11 @@ export async function createStudySetAction(formData: FormData) {
     .single();
 
   if (chapterError || !chapter) {
-    redirect(`/admin/prov/ny?error=${encodeURIComponent("Kunde inte skapa kapitlet.")}`);
+    redirect(
+      `/admin/prov/ny?error=${encodeURIComponent(
+        `Kunde inte skapa kapitlet: ${chapterError?.message ?? "okänt fel"}`,
+      )}`,
+    );
   }
 
   const { data: studySet, error: studySetError } = await supabase
@@ -132,7 +140,11 @@ export async function createStudySetAction(formData: FormData) {
     .single();
 
   if (studySetError || !studySet) {
-    redirect(`/admin/prov/ny?error=${encodeURIComponent("Kunde inte skapa pluggprojektet.")}`);
+    redirect(
+      `/admin/prov/ny?error=${encodeURIComponent(
+        `Kunde inte skapa pluggprojektet: ${studySetError?.message ?? "okänt fel"}`,
+      )}`,
+    );
   }
 
   const { data: material, error: materialError } = await supabase
