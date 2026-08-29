@@ -6,8 +6,6 @@ Supabase-projektet **"plugg hjälp"**. Databasschemat (12 tabeller + RLS)
 
 ## Kom igång
 
-
-  
 ```bash
 npm install
 cp .env.local.example .env.local
