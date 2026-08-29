@@ -75,7 +75,8 @@ export async function acceptInvitationAction(token: string, formData: FormData) 
   const password = String(formData.get("password") ?? "");
   const supabase = createClient();
 
-  const { data: inviteRows } = await supabase.rpc("get_invitation_by_token", {
+  // as any: se kommentar vid samma anrop i valkommen/[token]/page.tsx
+  const { data: inviteRows } = await (supabase.rpc as any)("get_invitation_by_token", {
     p_token: token,
   });
   const invitation = inviteRows?.[0];
@@ -97,7 +98,7 @@ export async function acceptInvitationAction(token: string, formData: FormData) 
   }
 
   if (data.session) {
-    const { error: acceptError } = await supabase.rpc("accept_invitation", {
+    const { error: acceptError } = await (supabase.rpc as any)("accept_invitation", {
       p_token: token,
     });
 

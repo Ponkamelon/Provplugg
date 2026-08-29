@@ -23,7 +23,8 @@ export async function GET(request: Request) {
 
       if (user) {
         if (flow === "accept_invite" && inviteToken) {
-          await supabase.rpc("accept_invitation", { p_token: inviteToken });
+          // as any: se kommentar vid samma anrop i actions/auth.ts
+          await (supabase.rpc as any)("accept_invitation", { p_token: inviteToken });
           return NextResponse.redirect(`${origin}/elev`);
         }
 

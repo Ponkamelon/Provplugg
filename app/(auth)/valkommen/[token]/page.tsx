@@ -9,7 +9,10 @@ export default async function InvitePage({
   searchParams: { error?: string };
 }) {
   const supabase = createClient();
-  const { data: inviteRows } = await supabase.rpc("get_invitation_by_token", {
+  // Typad som `any` här: supabase-js's typning för .rpc() matchar inte alltid
+  // den genererade Functions-typen rakt av mellan versioner. Funktionen är
+  // ändå säker (security definer, token-gated, se databasmigrationen).
+  const { data: inviteRows } = await (supabase.rpc as any)("get_invitation_by_token", {
     p_token: params.token,
   });
   const invitation = inviteRows?.[0];
