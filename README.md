@@ -5,7 +5,7 @@ Supabase-projektet **"plugg hjälp"**. Databasschemat (12 tabeller + RLS)
 är redan uppsatt i Supabase enligt sektion 62 och 64 i kravspecen.
 
 ## Kom igång
-
+  
 ```bash
 npm install
 cp .env.local.example .env.local
