@@ -1,17 +1,18 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import type { Database } from "@/lib/database.types";
 
 /**
  * Förnyar Supabase auth-sessionen på varje request och exponerar en
  * server-klient middleware.ts kan använda för att slå upp roll (admin/elev).
+ *
+ * OBS: medvetet inte typad med <Database>, se kommentar i client.ts.
  */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
     request: { headers: request.headers },
   });
 
-  const supabase = createServerClient<Database>(
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
