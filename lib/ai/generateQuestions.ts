@@ -40,8 +40,11 @@ export async function generateQuestionsFromText(params: {
   const { text, subjectName, chapterTitle, gradeLevel } = params;
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-5",
-    max_tokens: 8000,
+    // Snabbare modell för att hinna klart inom Vercel Hobby-planens
+    // 60-sekundersgräns för serverfunktioner. Byt till "claude-sonnet-5"
+    // för högre kvalitet om ni uppgraderar till Vercel Pro (300s gräns).
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 6000,
     system: SYSTEM_PROMPT,
     messages: [
       {
