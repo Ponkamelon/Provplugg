@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createStudySetAction } from "@/app/actions/studySets";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { SubmitButton } from "@/components/SubmitButton";
 
 // AI-frågegenereringen (via createStudySetAction) tar ofta 15–40 sekunder.
 // Vercels standardtimeout (10s) är för kort — 60 är max på Hobby-planen.
@@ -136,9 +137,9 @@ export default async function NyttProvPage({
           />
         </div>
 
-        <button type="submit" className="btn-primary w-full">
+        <SubmitButton pendingText="Genererar frågor... (kan ta upp till en halv minut)" className="btn-primary w-full">
           Skapa &amp; generera frågor
-        </button>
+        </SubmitButton>
         <p className="text-center text-xs text-navy/50">
           Tar upp till en halv minut — AI:n analyserar materialet och skapar
           frågorna.
