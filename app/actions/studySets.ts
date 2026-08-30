@@ -175,7 +175,8 @@ export async function createStudySetAction(formData: FormData) {
       .from("source_material")
       .update({ processing_status: "ready" })
       .eq("id", material!.id);
-  } catch {
+  } catch (err) {
+    console.error("AI-frågegenerering misslyckades (createStudySetAction):", err);
     await supabase
       .from("source_material")
       .update({ processing_status: "error" })
@@ -234,7 +235,8 @@ export async function regenerateQuestionsAction(studySetId: string, materialId: 
       .from("source_material")
       .update({ processing_status: "ready" })
       .eq("id", materialId);
-  } catch {
+  } catch (err) {
+    console.error("AI-frågegenerering misslyckades (regenerateQuestionsAction):", err);
     await supabase
       .from("source_material")
       .update({ processing_status: "error" })
