@@ -10,6 +10,7 @@ import {
   assignStudySetAction,
 } from "@/app/actions/questions";
 import { regenerateQuestionsAction } from "@/app/actions/studySets";
+import { SubmitButton } from "@/components/SubmitButton";
 import type { Tables } from "@/lib/database.types";
 
 // regenerateQuestionsAction (Försök igen) kör samma AI-anrop som kan ta
@@ -105,9 +106,9 @@ export default async function StudySetReviewPage({
             action={regenerateQuestionsAction.bind(null, params.studySetId, failedMaterial.id)}
             className="mt-3"
           >
-            <button type="submit" className="btn-secondary">
+            <SubmitButton pendingText="Genererar frågor..." className="btn-secondary">
               Försök igen
-            </button>
+            </SubmitButton>
           </form>
         </div>
       )}
