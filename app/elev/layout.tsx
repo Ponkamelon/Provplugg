@@ -19,11 +19,16 @@ export default async function ElevLayout({
             ProvPlugget
           </span>
         </Link>
-        <form action={signOutAction}>
-          <button type="submit" className="text-sm text-navy/50 underline">
-            Logga ut
-          </button>
-        </form>
+        <div className="flex items-center gap-4">
+          <Link href="/elev/installningar" className="text-sm text-navy/50 underline">
+            Inställningar
+          </Link>
+          <form action={signOutAction}>
+            <button type="submit" className="text-sm text-navy/50 underline">
+              Logga ut
+            </button>
+          </form>
+        </div>
       </header>
       <main className="mx-auto max-w-md px-6 py-6">{children}</main>
     </div>
