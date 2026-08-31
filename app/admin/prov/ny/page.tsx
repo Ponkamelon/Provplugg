@@ -42,7 +42,10 @@ export default async function NyttProvPage({
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="font-display text-2xl font-semibold text-navy">
+      <Link href="/admin/prov" className="text-sm text-navy/50 underline">
+        Avbryt
+      </Link>
+      <h1 className="mt-2 font-display text-2xl font-semibold text-navy">
         Nytt pluggprojekt
       </h1>
       <p className="mt-1 text-sm text-navy/60">
@@ -145,10 +148,6 @@ export default async function NyttProvPage({
           frågorna.
         </p>
       </form>
-
-      <Link href="/admin/prov" className="mt-4 inline-block text-sm text-navy/50 underline">
-        ← Tillbaka
-      </Link>
     </div>
   );
 }

@@ -66,7 +66,10 @@ export default async function QuizStartPage({
 
   return (
     <div>
-      <p className="text-xs text-navy/50">{studySet.chapters?.subjects?.name}</p>
+      <Link href="/elev" className="text-sm text-navy/50 underline">
+        ← Tillbaka
+      </Link>
+      <p className="mt-3 text-xs text-navy/50">{studySet.chapters?.subjects?.name}</p>
       <h1 className="font-display text-2xl font-semibold text-navy">
         {studySet.title}
       </h1>

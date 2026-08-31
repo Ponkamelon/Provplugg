@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { updateQuestionAction } from "@/app/actions/questions";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -33,7 +34,13 @@ export default async function EditQuestionPage({
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="font-display text-2xl font-semibold text-navy">
+      <Link
+        href={`/admin/prov/${params.studySetId}`}
+        className="text-sm text-navy/50 underline"
+      >
+        ← Tillbaka
+      </Link>
+      <h1 className="mt-2 font-display text-2xl font-semibold text-navy">
         Redigera fråga
       </h1>
 
@@ -100,9 +107,17 @@ export default async function EditQuestionPage({
           />
         </div>
 
-        <button type="submit" className="btn-primary w-full">
-          Spara
-        </button>
+        <div className="flex gap-3">
+          <button type="submit" className="btn-primary flex-1">
+            Spara
+          </button>
+          <Link
+            href={`/admin/prov/${params.studySetId}`}
+            className="btn-secondary flex-1 text-center"
+          >
+            Avbryt
+          </Link>
+        </div>
       </form>
     </div>
   );

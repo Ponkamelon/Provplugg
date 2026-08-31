@@ -8,7 +8,10 @@ export default function NyElevPage({
 }) {
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="font-display text-2xl font-semibold text-navy">
+      <Link href="/admin/elever" className="text-sm text-navy/50 underline">
+        Avbryt
+      </Link>
+      <h1 className="mt-2 font-display text-2xl font-semibold text-navy">
         Lägg till elev
       </h1>
       <p className="mt-1 text-sm text-navy/60">
@@ -69,13 +72,6 @@ export default function NyElevPage({
           Skicka inbjudan
         </button>
       </form>
-
-      <Link
-        href="/admin/elever"
-        className="mt-4 inline-block text-sm text-navy/50 underline"
-      >
-        ← Tillbaka till elever
-      </Link>
     </div>
   );
 }
