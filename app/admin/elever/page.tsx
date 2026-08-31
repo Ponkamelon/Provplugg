@@ -76,9 +76,10 @@ export default async function EleverPage({
         ) : (
           <div className="space-y-3">
             {students?.map((student) => (
-              <div
+              <Link
                 key={student.id}
-                className="notebook-card flex items-center justify-between p-4"
+                href={`/admin/elever/${student.id}`}
+                className="notebook-card flex items-center justify-between p-4 transition-transform hover:-translate-y-0.5"
               >
                 <div>
                   <p className="font-medium text-navy">
@@ -91,7 +92,7 @@ export default async function EleverPage({
                 <span className="rounded-full bg-seafoam px-3 py-1 text-xs font-medium text-ocean-dark">
                   Aktiv
                 </span>
-              </div>
+              </Link>
             ))}
 
             {invitations?.map((invitation) => (

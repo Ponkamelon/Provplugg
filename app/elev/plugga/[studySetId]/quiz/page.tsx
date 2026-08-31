@@ -37,6 +37,15 @@ export default async function QuizPage({
     .select("question_id, mastery_level")
     .eq("student_id", profile.id);
 
+  const { data: prefs } = await supabase
+    .from("student_preferences")
+    .select("feedback_timing")
+    .eq("student_id", profile.id)
+    .maybeSingle();
+
+  const feedbackTiming =
+    prefs?.feedback_timing === "end_of_test" ? "end_of_test" : "immediate";
+
   const progressMap = new Map(progressRows?.map((p) => [p.question_id, p.mastery_level]));
 
   let pool = allQuestions!;
@@ -68,5 +77,11 @@ export default async function QuizPage({
       : null,
   }));
 
-  return <QuizRunner studySetId={params.studySetId} questions={preparedQuestions} />;
+  return (
+    <QuizRunner
+      studySetId={params.studySetId}
+      questions={preparedQuestions}
+      feedbackTiming={feedbackTiming}
+    />
+  );
 }

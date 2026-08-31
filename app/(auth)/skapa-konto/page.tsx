@@ -65,6 +65,13 @@ export default function SignupPage({
         <button type="submit" className="btn-primary w-full">
           Skapa konto
         </button>
+        <p className="text-center text-xs text-navy/50">
+          Genom att skapa ett konto godkänner du vår{" "}
+          <Link href="/integritetspolicy" className="underline">
+            integritetspolicy
+          </Link>
+          .
+        </p>
       </form>
 
       <p className="mt-6 text-center text-sm text-navy/60">
