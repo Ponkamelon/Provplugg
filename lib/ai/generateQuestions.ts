@@ -37,7 +37,7 @@ Grundregler:
 - Kortsvarsfrågor (short_answer): ge gärna alternativa godkända svar i "accepted_answers".
 - Ge varje fråga en "knowledge_unit" (vad eleven behöver kunna, kort fras) och "importance" ("high"/"medium"/"low" — sikta på ungefär 60% high, 30% medium, 10% low över hela frågebanken).
 - "confidence_score": ett tal 0–1 som visar hur säker du är på att svaret verkligen stöds av materialet. Var ärlig — sätt lågt värde om materialet är otydligt.
-- Hellre färre bra frågor än många repetitiva. Riktvärde: normalt material 15–25 frågor, litet material 8–12, stort material 25–40. Skapa inte dubbletter som testar exakt samma sak med olika ord.
+- Hellre färre bra frågor än många repetitiva. Riktvärde: normalt material 12–18 frågor, litet material 8–12. Skapa ALDRIG fler än 20 frågor totalt, oavsett hur stort materialet är — hellre välj ut det viktigaste än att svaret blir avklippt. Skapa inte dubbletter som testar exakt samma sak med olika ord.
 
 Svara ENDAST med en giltig JSON-array, inget annat — ingen inledande text, ingen markdown-kodruta. Varje objekt ska ha exakt fälten: question, type, options (endast för multiple_choice), correct_answer, accepted_answers (valfritt), explanation, knowledge_unit, importance, confidence_score.`;
 
@@ -54,7 +54,7 @@ export async function generateQuestionsFromText(params: {
     // 60-sekundersgräns för serverfunktioner. Byt till "claude-sonnet-5"
     // för högre kvalitet om ni uppgraderar till Vercel Pro (300s gräns).
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 7000,
+    max_tokens: 8192,
     system: SYSTEM_PROMPT,
     messages: [
       {
@@ -97,15 +97,38 @@ Generera frågorna enligt instruktionerna.`,
   try {
     parsed = JSON.parse(candidate);
   } catch (parseError) {
-    console.error(
-      "Kunde inte tolka AI-svaret som JSON. Rått svar (start):",
-      raw.slice(0, 500),
-      "Rått svar (slut):",
-      raw.slice(-500),
-      "Parse-fel:",
-      parseError,
-    );
-    throw new Error("Kunde inte tolka AI-svaret som JSON");
+    // Reservplan: om svaret klipptes av mitt i sista frågan, försök rädda
+    // de frågor som faktiskt hann bli kompletta istället för att kasta
+    // bort hela batchen. Hittar sista "},\n" (avslutat objekt) och stänger
+    // arrayen där.
+    const lastCompleteObject = candidate.lastIndexOf("},");
+    if (lastCompleteObject === -1) {
+      console.error(
+        "Kunde inte tolka AI-svaret som JSON, och kunde inte reparera det. Rått svar (start):",
+        raw.slice(0, 500),
+        "Rått svar (slut):",
+        raw.slice(-500),
+        "Parse-fel:",
+        parseError,
+      );
+      throw new Error("Kunde inte tolka AI-svaret som JSON");
+    }
+
+    const repaired = candidate.slice(0, lastCompleteObject + 1) + "]";
+    try {
+      parsed = JSON.parse(repaired);
+      console.error(
+        "AI-svaret verkade avklippt — räddade de kompletta frågorna istället för att avbryta helt.",
+      );
+    } catch {
+      console.error(
+        "Kunde inte tolka AI-svaret som JSON, reparationsförsöket misslyckades också. Rått svar (start):",
+        raw.slice(0, 500),
+        "Rått svar (slut):",
+        raw.slice(-500),
+      );
+      throw new Error("Kunde inte tolka AI-svaret som JSON");
+    }
   }
 
   if (!Array.isArray(parsed)) {
