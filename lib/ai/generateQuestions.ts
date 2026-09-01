@@ -1,6 +1,16 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Reservlösning: om ANTHROPIC_API_KEY är en identitetskopplad nyckel som
+// spänner över flera workspaces krävs en anthropic-workspace-id-header på
+// varje anrop. Sätt ANTHROPIC_WORKSPACE_ID i miljövariablerna om ni ser
+// felet "anthropic-workspace-id is required..." och inte kan skapa om
+// nyckeln som workspace-specifik istället.
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  defaultHeaders: process.env.ANTHROPIC_WORKSPACE_ID
+    ? { "anthropic-workspace-id": process.env.ANTHROPIC_WORKSPACE_ID }
+    : undefined,
+});
 
 export type GeneratedQuestion = {
   question: string;
@@ -44,7 +54,7 @@ export async function generateQuestionsFromText(params: {
     // 60-sekundersgräns för serverfunktioner. Byt till "claude-sonnet-5"
     // för högre kvalitet om ni uppgraderar till Vercel Pro (300s gräns).
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 6000,
+    max_tokens: 7000,
     system: SYSTEM_PROMPT,
     messages: [
       {
@@ -68,16 +78,33 @@ Generera frågorna enligt instruktionerna.`,
     throw new Error("AI:n gav inget textsvar");
   }
 
-  const cleaned = textBlock.text
-    .trim()
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/```\s*$/i, "")
-    .trim();
+  const raw = textBlock.text.trim();
+
+  // Robust extraktion: leta upp den YTTERSTA arrayen ([ ... ]) i svaret,
+  // oavsett om modellen la till kodstaket, en inledande mening eller
+  // annat runtomkring — istället för att bara klippa bort ```json-rader.
+  const firstBracket = raw.indexOf("[");
+  const lastBracket = raw.lastIndexOf("]");
+
+  if (firstBracket === -1 || lastBracket === -1 || lastBracket <= firstBracket) {
+    console.error("AI-svar innehöll ingen JSON-array. Rått svar (start):", raw.slice(0, 500));
+    throw new Error("AI-svaret innehöll ingen lista att tolka");
+  }
+
+  const candidate = raw.slice(firstBracket, lastBracket + 1);
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(cleaned);
-  } catch {
+    parsed = JSON.parse(candidate);
+  } catch (parseError) {
+    console.error(
+      "Kunde inte tolka AI-svaret som JSON. Rått svar (start):",
+      raw.slice(0, 500),
+      "Rått svar (slut):",
+      raw.slice(-500),
+      "Parse-fel:",
+      parseError,
+    );
     throw new Error("Kunde inte tolka AI-svaret som JSON");
   }
 
