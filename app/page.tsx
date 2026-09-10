@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CompassMark } from "@/components/CompassMark";
 import { WaveDivider } from "@/components/WaveDivider";
-import { FAQ } from "@/components/FAQ";
 
 export default async function HomePage() {
   const supabase = createClient();
@@ -23,27 +22,26 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="bg-sand">
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
-        <CompassMark size={56} />
-        <h1 className="mt-6 font-display text-4xl font-semibold text-navy sm:text-5xl">
-          ProvPlugget
-        </h1>
-        <p className="mt-3 max-w-md text-lg text-navy/70">
-          Foto, PDF eller anteckningar in. Korta frågor ut. Vi fixar det.
-        </p>
-        <WaveDivider className="mt-6 h-4 w-40" color="#FF7A59" />
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link href="/skapa-konto" className="btn-primary">
-            Kom igång som förälder/lärare
-          </Link>
-          <Link href="/logga-in" className="btn-secondary">
-            Logga in
-          </Link>
-        </div>
-      </main>
-
-      <FAQ className="px-6 pb-20" />
-    </div>
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-sand px-6 py-16 text-center">
+      <CompassMark size={56} />
+      <h1 className="mt-6 font-display text-4xl font-semibold text-navy sm:text-5xl">
+        ProvPlugget
+      </h1>
+      <p className="mt-3 max-w-md text-lg text-navy/70">
+        Foto, PDF eller anteckningar in. Korta frågor ut. Vi fixar det.
+      </p>
+      <WaveDivider className="mt-6 h-4 w-40" color="#FF7A59" />
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Link href="/skapa-konto" className="btn-primary">
+          Kom igång som förälder/lärare
+        </Link>
+        <Link href="/logga-in" className="btn-secondary">
+          Logga in
+        </Link>
+      </div>
+      <Link href="/faq" className="btn-tertiary mt-4">
+        Vanliga frågor
+      </Link>
+    </main>
   );
 }

@@ -72,6 +72,10 @@
     @apply inline-flex items-center justify-center rounded-full border-2 border-ocean px-6 py-3 font-sans font-semibold text-ocean transition-colors hover:bg-ocean hover:text-white active:scale-[0.98];
   }
 
+  .btn-tertiary {
+    @apply inline-flex items-center justify-center rounded-full bg-turquoise px-6 py-3 font-sans font-semibold text-navy shadow-card transition-transform hover:opacity-90 active:scale-[0.98];
+  }
+
   .field-label {
     @apply mb-1 block text-sm font-medium text-navy/80;
   }
