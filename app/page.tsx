@@ -31,17 +31,17 @@ export default async function HomePage() {
         Foto, PDF eller anteckningar in. Korta frågor ut. Vi fixar det.
       </p>
       <WaveDivider className="mt-6 h-4 w-40" color="#FF7A59" />
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <Link href="/skapa-konto" className="btn-primary">
+      <div className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
+        <Link href="/skapa-konto" className="btn-primary justify-center">
           Kom igång som förälder/lärare
         </Link>
-        <Link href="/logga-in" className="btn-secondary">
+        <Link href="/logga-in" className="btn-secondary justify-center">
           Logga in
         </Link>
+        <Link href="/faq" className="btn-tertiary justify-center">
+          Vanliga frågor
+        </Link>
       </div>
-      <Link href="/faq" className="btn-tertiary mt-4">
-        Vanliga frågor
-      </Link>
     </main>
   );
 }
