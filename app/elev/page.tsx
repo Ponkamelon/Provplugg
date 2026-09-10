@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { Medal, medalForPercent } from "@/components/Medal";
 
 export default async function ElevDashboard() {
   const profile = await requireProfile("student");
@@ -36,6 +37,25 @@ export default async function ElevDashboard() {
   const chapterToSubject = new Map((chapters ?? []).map((c) => [c.id, c.subject_id]));
   const subjectNameById = new Map((subjects ?? []).map((s) => [s.id, s.name]));
 
+  // Bästa resultat per pluggprojekt, för att visa medaljen eleven faktiskt
+  // uppnått — inte det senaste försöket om ett tidigare var bättre.
+  const { data: attempts } = studySetIds.length
+    ? await supabase
+        .from("attempts")
+        .select("study_set_id, score, total_questions, completed_at")
+        .eq("student_id", profile.id)
+        .not("completed_at", "is", null)
+        .in("study_set_id", studySetIds)
+    : { data: [] as { study_set_id: string; score: number | null; total_questions: number | null; completed_at: string | null }[] };
+
+  const bestPercentByStudySet = new Map<string, number>();
+  for (const a of attempts ?? []) {
+    if (!a.total_questions || a.score === null) continue;
+    const percent = Math.round((a.score / a.total_questions) * 100);
+    const current = bestPercentByStudySet.get(a.study_set_id) ?? -1;
+    if (percent > current) bestPercentByStudySet.set(a.study_set_id, percent);
+  }
+
   const firstName = profile.display_name.split(" ")[0];
 
   return (
@@ -54,16 +74,27 @@ export default async function ElevDashboard() {
           {studySets.map((s) => {
             const subjectId = chapterToSubject.get(s.chapter_id);
             const subjectName = subjectId ? subjectNameById.get(subjectId) : undefined;
+            const bestPercent = bestPercentByStudySet.get(s.id);
+            const tier = bestPercent !== undefined ? medalForPercent(bestPercent) : null;
+
             return (
               <Link
                 key={s.id}
                 href={`/elev/plugga/${s.id}`}
-                className="notebook-card block p-4 transition-transform hover:-translate-y-0.5"
+                className="notebook-card flex items-center justify-between gap-3 p-4 transition-transform hover:-translate-y-0.5"
               >
-                {subjectName && <p className="text-xs text-navy/50">{subjectName}</p>}
-                <p className="font-medium text-navy">{s.title}</p>
-                {s.exam_date && (
-                  <p className="mt-1 text-sm text-coral">Prov {s.exam_date}</p>
+                <div>
+                  {subjectName && <p className="text-xs text-navy/50">{subjectName}</p>}
+                  <p className="font-medium text-navy">{s.title}</p>
+                  {s.exam_date && (
+                    <p className="mt-1 text-sm text-coral">Prov {s.exam_date}</p>
+                  )}
+                </div>
+                {tier && (
+                  <div className="shrink-0 text-center">
+                    <Medal tier={tier} size={40} />
+                    <p className="mt-0.5 font-mono text-xs text-navy/50">{bestPercent}%</p>
+                  </div>
                 )}
               </Link>
             );
