@@ -19,7 +19,7 @@ export default async function InvitePage({
 
   if (!invitation) {
     return (
-      <div>
+      <div className="notebook-card mx-auto w-full max-w-sm p-8">
         <h1 className="font-display text-2xl font-semibold text-navy">
           Länken fungerar inte
         </h1>
@@ -32,7 +32,7 @@ export default async function InvitePage({
 
   if (invitation.status !== "pending") {
     return (
-      <div>
+      <div className="notebook-card mx-auto w-full max-w-sm p-8">
         <h1 className="font-display text-2xl font-semibold text-navy">
           {invitation.status === "expired"
             ? "Inbjudan har gått ut"
@@ -50,7 +50,7 @@ export default async function InvitePage({
   const acceptWithToken = acceptInvitationAction.bind(null, params.token);
 
   return (
-    <div>
+    <div className="notebook-card mx-auto w-full max-w-sm p-8">
       <h1 className="font-display text-2xl font-semibold text-navy">
         Hej {invitation.student_name}! 👋
       </h1>
