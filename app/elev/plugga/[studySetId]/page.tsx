@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { Medal, medalForPercent } from "@/components/Medal";
 import type { Tables } from "@/lib/database.types";
 
 type StudySetWithChapter = Tables<"study_sets"> & {
@@ -48,6 +49,21 @@ export default async function QuizStartPage({
 
   const needsPracticeCount = progressRows?.length ?? 0;
 
+  const { data: attempts } = await supabase
+    .from("attempts")
+    .select("score, total_questions, completed_at")
+    .eq("student_id", profile.id)
+    .eq("study_set_id", params.studySetId)
+    .not("completed_at", "is", null);
+
+  let bestPercent: number | null = null;
+  for (const a of attempts ?? []) {
+    if (!a.total_questions || a.score === null) continue;
+    const percent = Math.round((a.score / a.total_questions) * 100);
+    if (bestPercent === null || percent > bestPercent) bestPercent = percent;
+  }
+  const tier = bestPercent !== null ? medalForPercent(bestPercent) : null;
+
   if (!total) {
     return (
       <div>
@@ -70,9 +86,17 @@ export default async function QuizStartPage({
         ← Tillbaka
       </Link>
       <p className="mt-3 text-xs text-navy/50">{studySet.chapters?.subjects?.name}</p>
-      <h1 className="font-display text-2xl font-semibold text-navy">
-        {studySet.title}
-      </h1>
+      <div className="mt-1 flex items-center justify-between gap-3">
+        <h1 className="font-display text-2xl font-semibold text-navy">
+          {studySet.title}
+        </h1>
+        {tier && (
+          <div className="shrink-0 text-center">
+            <Medal tier={tier} size={44} />
+            <p className="mt-0.5 font-mono text-xs text-navy/50">{bestPercent}%</p>
+          </div>
+        )}
+      </div>
       <p className="mt-2 text-sm text-navy/60">{total} frågor redo</p>
 
       <div className="mt-6 space-y-3">
