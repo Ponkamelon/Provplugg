@@ -7,7 +7,7 @@ export default function SignupPage({
   searchParams: { error?: string };
 }) {
   return (
-    <div>
+    <div className="notebook-card mx-auto w-full max-w-sm p-8">
       <h1 className="font-display text-2xl font-semibold text-navy">
         Skapa konto
       </h1>
