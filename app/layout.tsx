@@ -1,29 +1,46 @@
-import Link from "next/link";
-import { CompassMark } from "@/components/CompassMark";
-import { WaveDivider } from "@/components/WaveDivider";
+import type { Metadata } from "next";
+import { Fraunces, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
+import "./globals.css";
 
-export default function AuthLayout({
+// Display: Fraunces — varm, lätt äventyrlig serif för rubriker.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+// Body/UI: Plus Jakarta Sans — hög läsbarhet på mobil, snäll mot elever
+// med lässvårigheter.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-body",
+  weight: ["400", "500", "600", "700"],
+});
+
+// Utility: IBM Plex Mono — för procent, timers och statistik.
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "500"],
+});
+
+export const metadata: Metadata = {
+  title: "ProvPlugget",
+  description: "Foto, PDF eller anteckningar in. Korta frågor ut. Vi fixar det.",
+};
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-sand px-4 py-12">
-      <WaveDivider
-        className="pointer-events-none absolute left-0 top-8 h-6 w-full opacity-40"
-        color="#6FC2B4"
-      />
-      <Link href="/" className="relative z-10 mb-8 flex items-center gap-3">
-        <CompassMark size={36} />
-        <span className="font-display text-xl font-semibold text-navy">
-          ProvPlugget
-        </span>
-      </Link>
-      <div className="relative z-10 w-full max-w-2xl">{children}</div>
-      <WaveDivider
-        className="pointer-events-none absolute bottom-8 left-0 h-6 w-full opacity-40"
-        color="#FF7A59"
-      />
-    </div>
+    <html
+      lang="sv"
+      className={`${fraunces.variable} ${jakarta.variable} ${plexMono.variable}`}
+    >
+      <body>{children}</body>
+    </html>
   );
 }
