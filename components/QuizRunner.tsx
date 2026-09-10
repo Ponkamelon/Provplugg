@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   startAttemptAction,
   submitAnswerAction,
   finishAttemptAction,
 } from "@/app/actions/quiz";
+import { Medal, medalForPercent } from "@/components/Medal";
 
 type QuizQuestion = {
   id: string;
@@ -41,6 +43,7 @@ export function QuizRunner({
   const [finished, setFinished] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [answered, setAnswered] = useState<AnsweredRecord[]>([]);
+  const router = useRouter();
 
   // Ref istället för bara state för den l\u00f6pande po\u00e4ngen: i "efter test"-
   // l\u00e4get sker r\u00e4ttning och avancering i samma klick, och d\u00e5 hinner React
@@ -108,16 +111,29 @@ export function QuizRunner({
     }
   }
 
+  function handleCancel() {
+    const hasProgress = answered.length > 0 || selected;
+    if (
+      hasProgress &&
+      !window.confirm("Vill du avbryta? Det du redan svarat sparas inte.")
+    ) {
+      return;
+    }
+    router.push(`/elev/plugga/${studySetId}`);
+  }
+
   if (loading) {
     return <p className="text-center text-navy/50">Laddar...</p>;
   }
 
   if (finished) {
     const percent = Math.round((correctCountRef.current / questions.length) * 100);
+    const tier = medalForPercent(percent);
     return (
       <div>
         <div className="text-center">
-          <p className="font-display text-5xl font-semibold text-navy">
+          {tier && <Medal tier={tier} />}
+          <p className="mt-2 font-display text-5xl font-semibold text-navy">
             {correctCountRef.current} / {questions.length}
           </p>
           <p className="mt-2 font-mono text-2xl font-semibold text-ocean">
@@ -183,9 +199,19 @@ export function QuizRunner({
 
   return (
     <div>
-      <p className="text-center font-mono text-sm text-navy/50">
-        {index + 1} / {questions.length}
-      </p>
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={handleCancel}
+          className="text-sm text-navy/50 underline"
+        >
+          Avbryt
+        </button>
+        <p className="font-mono text-sm text-navy/50">
+          {index + 1} / {questions.length}
+        </p>
+        <span className="w-12" />
+      </div>
 
       <div className="notebook-card mt-4 p-6">
         <p className="text-lg font-medium text-navy">{current.question}</p>
