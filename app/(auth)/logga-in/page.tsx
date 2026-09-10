@@ -65,8 +65,8 @@ export default function LoginPage({
         </p>
       </div>
 
-      <div className="mt-6 text-center">
-        <Link href="/faq" className="btn-tertiary">
+      <div className="mx-auto mt-6 w-full max-w-sm text-center">
+        <Link href="/faq" className="btn-tertiary w-full justify-center">
           Vanliga frågor
         </Link>
       </div>
