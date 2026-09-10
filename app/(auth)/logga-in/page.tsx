@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { signInAction } from "@/app/actions/auth";
-import { FAQ } from "@/components/FAQ";
 
 export default function LoginPage({
   searchParams,
@@ -66,7 +65,11 @@ export default function LoginPage({
         </p>
       </div>
 
-      <FAQ className="mt-16" />
+      <div className="mt-6 text-center">
+        <Link href="/faq" className="btn-tertiary">
+          Vanliga frågor
+        </Link>
+      </div>
     </div>
   );
 }
