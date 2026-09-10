@@ -1,55 +1,29 @@
 import Link from "next/link";
 import { CompassMark } from "@/components/CompassMark";
-import { HouseIcon } from "@/components/HouseIcon";
-import { requireProfile } from "@/lib/auth";
-import { signOutAction } from "@/app/actions/auth";
+import { WaveDivider } from "@/components/WaveDivider";
 
-export default async function AdminLayout({
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const profile = await requireProfile("admin");
-
   return (
-    <div className="min-h-screen bg-sand">
-      <header className="border-b border-sand-deep bg-white/60">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              aria-label="Till startsidan"
-              title="Till startsidan"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-navy/60 transition-colors hover:bg-seafoam hover:text-ocean-dark"
-            >
-              <HouseIcon />
-            </Link>
-            <Link href="/admin" className="flex items-center gap-2">
-              <CompassMark size={32} />
-              <span className="font-display text-lg font-semibold text-navy">
-                ProvPlugget
-              </span>
-            </Link>
-            <nav className="hidden gap-4 text-sm font-medium text-navy/70 sm:flex">
-              <Link href="/admin/elever" className="hover:text-ocean">
-                Elever
-              </Link>
-              <Link href="/admin/prov" className="hover:text-ocean">
-                Pluggprojekt
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-navy/60">{profile.display_name}</span>
-            <form action={signOutAction}>
-              <button type="submit" className="text-ocean underline">
-                Logga ut
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
+    <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-sand px-4 py-12">
+      <WaveDivider
+        className="pointer-events-none absolute left-0 top-8 h-6 w-full opacity-40"
+        color="#6FC2B4"
+      />
+      <Link href="/" className="relative z-10 mb-8 flex items-center gap-3">
+        <CompassMark size={36} />
+        <span className="font-display text-xl font-semibold text-navy">
+          ProvPlugget
+        </span>
+      </Link>
+      <div className="relative z-10 w-full max-w-2xl">{children}</div>
+      <WaveDivider
+        className="pointer-events-none absolute bottom-8 left-0 h-6 w-full opacity-40"
+        color="#FF7A59"
+      />
     </div>
   );
 }

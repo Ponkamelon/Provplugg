@@ -1,86 +1,49 @@
 import Link from "next/link";
-import { WaveDivider } from "@/components/WaveDivider";
-import { requireProfile } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { CompassMark } from "@/components/CompassMark";
+import { WaveDivider } from "@/components/WaveDivider";
+import { FAQ } from "@/components/FAQ";
 
-type StudySetListItem = {
-  id: string;
-  title: string;
-  grade_level: number | null;
-  status: string;
-  chapters: { title: string; subjects: { name: string } | null } | null;
-  questions: { count: number }[] | null;
-};
-
-export default async function ProvListPage({
-  searchParams,
-}: {
-  searchParams: { created_parts?: string };
-}) {
-  const profile = await requireProfile("admin");
+export default async function HomePage() {
   const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const { data } = await supabase
-    .from("study_sets")
-    .select("id, title, grade_level, status, chapters(title, subjects(name)), questions(count)")
-    .eq("admin_id", profile.id)
-    .order("created_at", { ascending: false });
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-  const studySets = (data ?? []) as unknown as StudySetListItem[];
-  const createdParts = Number(searchParams.created_parts ?? 0);
+    if (profile?.role === "admin") redirect("/admin");
+    if (profile?.role === "student") redirect("/elev");
+  }
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-semibold text-navy">
-            Pluggprojekt
-          </h1>
-          <WaveDivider className="mt-2 h-3 w-24" color="#FF7A59" />
-        </div>
-        <Link href="/admin/prov/ny" className="btn-primary">
-          + Nytt pluggprojekt
-        </Link>
-      </div>
-
-      {createdParts > 1 && (
-        <div className="mt-4 rounded-xl border border-turquoise bg-seafoam p-4">
-          <p className="text-sm font-medium text-navy">
-            Materialet var stort, så det blev {createdParts} delprov (Del 1,
-            Del 2, ...) istället för ett.
-          </p>
-          <p className="mt-1 text-xs text-navy/60">
-            Del 1 har redan genererade frågor. Öppna varje övrig del och
-            tryck "Generera frågor" när du är redo för den.
-          </p>
-        </div>
-      )}
-
-      <div className="mt-8 space-y-3">
-        {!studySets.length && (
-          <div className="notebook-card p-8 text-center">
-            <p className="text-navy/70">
-              Inga pluggprojekt än. Skapa det första!
-            </p>
-          </div>
-        )}
-        {studySets.map((s) => (
-          <Link
-            key={s.id}
-            href={`/admin/prov/${s.id}`}
-            className="notebook-card block p-4 transition-transform hover:-translate-y-0.5"
-          >
-            <p className="text-xs text-navy/50">
-              {s.chapters?.subjects?.name} · {s.chapters?.title}
-            </p>
-            <p className="font-medium text-navy">{s.title}</p>
-            <p className="mt-1 text-sm text-navy/60">
-              Åk {s.grade_level} · {s.questions?.[0]?.count ?? 0} frågor ·{" "}
-              {s.status === "published" ? "Publicerat" : "Utkast"}
-            </p>
+    <div className="bg-sand">
+      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
+        <CompassMark size={56} />
+        <h1 className="mt-6 font-display text-4xl font-semibold text-navy sm:text-5xl">
+          ProvPlugget
+        </h1>
+        <p className="mt-3 max-w-md text-lg text-navy/70">
+          Foto, PDF eller anteckningar in. Korta frågor ut. Vi fixar det.
+        </p>
+        <WaveDivider className="mt-6 h-4 w-40" color="#FF7A59" />
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Link href="/skapa-konto" className="btn-primary">
+            Kom igång som förälder/lärare
           </Link>
-        ))}
-      </div>
+          <Link href="/logga-in" className="btn-secondary">
+            Logga in
+          </Link>
+        </div>
+      </main>
+
+      <FAQ className="px-6 pb-20" />
     </div>
   );
 }
