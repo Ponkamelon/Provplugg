@@ -7,6 +7,52 @@ import { createClient } from "@/lib/supabase/server";
 import { generateQuestionsFromText } from "@/lib/ai/generateQuestions";
 import { jaccardSimilarity, DUPLICATE_THRESHOLD } from "@/lib/ai/dedupe";
 
+const MAX_WORDS_PER_PART = 700;
+const MAX_PARTS = 4;
+
+/**
+ * Delar upp stort material i lagom stora bitar (~700 ord, ca 12–18 frågor
+ * värt) så att varje AI-anrop hålls under Vercels tidsgräns och risken
+ * för avklippta svar minskar. Delar på styckegränser i första hand.
+ * Begränsat till max 4 delar — är materialet ännu större får varje del
+ * bära lite mer, hellre än ett femte+ prov admin aldrig hinner granska.
+ */
+function splitMaterialIntoParts(text: string): string[] {
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+  if (wordCount <= MAX_WORDS_PER_PART) return [text];
+
+  const estimatedParts = Math.min(
+    MAX_PARTS,
+    Math.ceil(wordCount / MAX_WORDS_PER_PART),
+  );
+  const targetWordsPerPart = Math.ceil(wordCount / estimatedParts);
+
+  const paragraphs = text.split(/\n\s*\n/).filter((p) => p.trim());
+  const parts: string[] = [];
+  let current: string[] = [];
+  let currentWords = 0;
+
+  for (const para of paragraphs) {
+    const paraWords = para.trim().split(/\s+/).filter(Boolean).length;
+
+    if (
+      currentWords + paraWords > targetWordsPerPart &&
+      current.length > 0 &&
+      parts.length < estimatedParts - 1
+    ) {
+      parts.push(current.join("\n\n"));
+      current = [];
+      currentWords = 0;
+    }
+
+    current.push(para);
+    currentWords += paraWords;
+  }
+  if (current.length) parts.push(current.join("\n\n"));
+
+  return parts.length ? parts : [text];
+}
+
 /**
  * Kör AI-genereringen och sparar frågorna. Dublettkontroll (sektion 36)
  * mot både redan sparade frågor och andra frågor i samma batch.
@@ -126,65 +172,90 @@ export async function createStudySetAction(formData: FormData) {
     );
   }
 
-  const { data: studySet, error: studySetError } = await supabase
-    .from("study_sets")
-    .insert({
-      chapter_id: chapter!.id,
-      admin_id: profile.id,
-      title,
-      exam_date: examDate,
-      grade_level: gradeLevel,
-      status: "draft",
-    })
-    .select()
-    .single();
+  const parts = splitMaterialIntoParts(materialText);
+  const isMultiPart = parts.length > 1;
 
-  if (studySetError || !studySet) {
-    redirect(
-      `/admin/prov/ny?error=${encodeURIComponent(
-        `Kunde inte skapa pluggprojektet: ${studySetError?.message ?? "okänt fel"}`,
-      )}`,
-    );
-  }
+  const createdStudySetIds: string[] = [];
 
-  const { data: material, error: materialError } = await supabase
-    .from("source_material")
-    .insert({
-      study_set_id: studySet!.id,
-      material_type: "pasted_text",
-      extracted_text: materialText,
-      processing_status: "processing",
-    })
-    .select()
-    .single();
+  for (let i = 0; i < parts.length; i++) {
+    const partTitle = isMultiPart ? `${title} (Del ${i + 1})` : title;
 
-  if (materialError || !material) {
-    redirect(`/admin/prov/${studySet!.id}`);
-  }
+    const { data: studySet, error: studySetError } = await supabase
+      .from("study_sets")
+      .insert({
+        chapter_id: chapter!.id,
+        admin_id: profile.id,
+        title: partTitle,
+        exam_date: examDate,
+        grade_level: gradeLevel,
+        status: "draft",
+      })
+      .select()
+      .single();
 
-  try {
-    await generateAndSaveQuestions({
-      studySetId: studySet!.id,
-      materialId: material!.id,
-      text: materialText,
-      subjectName: subject!.name,
-      chapterTitle,
-      gradeLevel,
-    });
-    await supabase
+    if (studySetError || !studySet) {
+      console.error(`Kunde inte skapa del ${i + 1}:`, studySetError);
+      continue;
+    }
+
+    createdStudySetIds.push(studySet.id);
+
+    const { data: material, error: materialError } = await supabase
       .from("source_material")
-      .update({ processing_status: "ready" })
-      .eq("id", material!.id);
-  } catch (err) {
-    console.error("AI-frågegenerering misslyckades (createStudySetAction):", err);
-    await supabase
-      .from("source_material")
-      .update({ processing_status: "error" })
-      .eq("id", material!.id);
+      .insert({
+        study_set_id: studySet.id,
+        material_type: "pasted_text",
+        extracted_text: parts[i],
+        // Bara del 1 genereras direkt (nedan). Resten väntar tills admin
+        // öppnar dem — annars riskerar flera AI-anrop i rad i samma
+        // knapptryckning att tillsammans krocka med tidsgränsen.
+        processing_status: i === 0 ? "processing" : "uploaded",
+      })
+      .select()
+      .single();
+
+    if (materialError || !material) {
+      console.error(`Kunde inte spara material för del ${i + 1}:`, materialError);
+      continue;
+    }
+
+    if (i === 0) {
+      try {
+        await generateAndSaveQuestions({
+          studySetId: studySet.id,
+          materialId: material.id,
+          text: parts[i],
+          subjectName: subject!.name,
+          chapterTitle: partTitle,
+          gradeLevel,
+        });
+        await supabase
+          .from("source_material")
+          .update({ processing_status: "ready" })
+          .eq("id", material.id);
+      } catch (err) {
+        console.error("AI-frågegenerering misslyckades (createStudySetAction):", err);
+        await supabase
+          .from("source_material")
+          .update({ processing_status: "error" })
+          .eq("id", material.id);
+      }
+    }
   }
 
   revalidatePath("/admin/prov");
-  redirect(`/admin/prov/${studySet!.id}`);
+
+  if (!createdStudySetIds.length) {
+    redirect(
+      `/admin/prov/ny?error=${encodeURIComponent("Kunde inte skapa pluggprojektet.")}`,
+    );
+  }
+
+  if (createdStudySetIds.length === 1) {
+    redirect(`/admin/prov/${createdStudySetIds[0]}`);
+  }
+
+  redirect(`/admin/prov?created_parts=${createdStudySetIds.length}`);
 }
 
 /**
