@@ -24,7 +24,7 @@ export type GeneratedQuestion = {
   confidence_score: number;
 };
 
-const SYSTEM_PROMPT = `Du genererar övningsfrågor för ProvPlugget, en studieapp för elever i årskurs 7–9.
+const SYSTEM_PROMPT = `Du genererar övningsfrågor för ProvKlura, en studieapp för elever i årskurs 7–9.
 
 Grundregler:
 - Använd ENDAST fakta som finns i det bifogade materialet. Hitta aldrig på information som inte står där.
