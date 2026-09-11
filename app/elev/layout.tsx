@@ -24,7 +24,7 @@ export default async function ElevLayout({
             <HouseIcon />
           </Link>
           <Link href="/elev" className="flex items-center gap-2">
-            <OwlMark size={28} />
+            <OwlMark size={56} />
             <span className="font-display text-base font-semibold text-navy">
               ProvKlura
             </span>
