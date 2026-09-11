@@ -78,7 +78,7 @@ export default async function StudentDetailPage({
           <h1 className="font-display text-3xl font-semibold text-navy">
             {student.display_name}
           </h1>
-          <WaveDivider className="mt-2 h-3 w-24" color="#FF7A59" />
+          <WaveDivider className="mt-2 h-3 w-24" color="#FF6B4A" />
         </div>
         <Link href={`/admin/elever/${student.id}/anpassningar`} className="btn-secondary">
           Anpassningar
