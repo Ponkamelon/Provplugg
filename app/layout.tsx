@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
-import { Fraunces, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Anton, Inter, IBM_Plex_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 
-// Display: Fraunces — varm, lätt äventyrlig serif för rubriker.
-const fraunces = Fraunces({
+// Display: Anton — tjock, komprimerad "impact"-stil för rubriker.
+// Närmaste gratis motsvarighet till moodboardens "Anchor Impact".
+const anton = Anton({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["500", "600", "700"],
-  style: ["normal", "italic"],
+  weight: ["400"],
 });
 
-// Body/UI: Plus Jakarta Sans — hög läsbarhet på mobil, snäll mot elever
-// med lässvårigheter.
-const jakarta = Plus_Jakarta_Sans({
+// Body/UI: Inter — ren, modern, hög läsbarhet i app och webb.
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-body",
   weight: ["400", "500", "600", "700"],
@@ -25,9 +24,20 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
+// Accent/handstil: Caveat — för highlights och pepp ("Klura mer!").
+const caveat = Caveat({
+  subsets: ["latin"],
+  variable: "--font-accent",
+  weight: ["600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "ProvPlugget",
-  description: "Foto, PDF eller anteckningar in. Korta frågor ut. Vi fixar det.",
+  title: "ProvKlura",
+  description: "Klura ut provet. Foto, PDF eller anteckningar in. Korta frågor ut.",
+};
+
+export const viewport = {
+  themeColor: "#1D5D7A",
 };
 
 export default function RootLayout({
@@ -38,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="sv"
-      className={`${fraunces.variable} ${jakarta.variable} ${plexMono.variable}`}
+      className={`${anton.variable} ${inter.variable} ${plexMono.variable} ${caveat.variable}`}
     >
       <body>{children}</body>
     </html>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { CompassMark } from "@/components/CompassMark";
+import { OwlMark } from "@/components/OwlMark";
 import { WaveDivider } from "@/components/WaveDivider";
 
 export default async function HomePage() {
@@ -23,14 +23,15 @@ export default async function HomePage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-sand px-6 py-16 text-center">
-      <CompassMark size={56} />
-      <h1 className="mt-6 font-display text-4xl font-semibold text-navy sm:text-5xl">
-        ProvPlugget
+      <OwlMark size={56} />
+      <h1 className="mt-6 text-4xl text-navy sm:text-5xl">
+        ProvKlura
       </h1>
+      <p className="mt-1 font-accent text-2xl text-coral">Klura ut provet.</p>
       <p className="mt-3 max-w-md text-lg text-navy/70">
-        Foto, PDF eller anteckningar in. Korta frågor ut. Vi fixar det.
+        Foto, PDF eller anteckningar in. Korta frågor ut.
       </p>
-      <WaveDivider className="mt-6 h-4 w-40" color="#FF7A59" />
+      <WaveDivider className="mt-6 h-4 w-40" color="#FF6B4A" />
       <div className="mt-8 flex w-full max-w-xs flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center">
         <Link href="/skapa-konto" className="btn-primary justify-center">
           Kom igång som förälder/lärare

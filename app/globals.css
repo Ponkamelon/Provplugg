@@ -28,7 +28,10 @@
     @apply bg-sand text-navy font-sans antialiased;
   }
 
-  h1,
+  h1 {
+    @apply font-display uppercase tracking-wide text-navy;
+  }
+
   h2,
   h3 {
     @apply font-display text-navy;
@@ -58,7 +61,7 @@
     background-image: radial-gradient(
       circle at 10px 0,
       transparent 9px,
-      var(--tw-torn-color, #f4ebd6) 9px
+      var(--tw-torn-color, #e7d7b2) 9px
     );
     background-size: 20px 10px;
     background-repeat: repeat-x;
