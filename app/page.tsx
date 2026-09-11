@@ -23,7 +23,7 @@ export default async function HomePage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-sand px-6 py-16 text-center">
-      <OwlMark size={56} />
+      <OwlMark size={112} />
       <h1 className="mt-6 text-4xl text-navy sm:text-5xl">
         ProvKlura
       </h1>
