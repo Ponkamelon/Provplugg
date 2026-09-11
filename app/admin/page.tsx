@@ -32,7 +32,7 @@ export default async function AdminDashboard() {
       <h1 className="font-display text-3xl font-semibold text-navy">
         Hej {firstName}!
       </h1>
-      <WaveDivider className="mt-2 h-3 w-24" color="#FF7A59" />
+      <WaveDivider className="mt-2 h-3 w-24" color="#FF6B4A" />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <Link

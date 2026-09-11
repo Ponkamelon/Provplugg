@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { CompassMark } from "@/components/CompassMark";
+import { OwlMark } from "@/components/OwlMark";
+import { HouseIcon } from "@/components/HouseIcon";
 import { requireProfile } from "@/lib/auth";
 import { signOutAction } from "@/app/actions/auth";
 
@@ -14,11 +15,19 @@ export default async function AdminLayout({
     <div className="min-h-screen bg-sand">
       <header className="border-b border-sand-deep bg-white/60">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin"
+              aria-label="Till startsidan"
+              title="Till startsidan"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-navy/60 transition-colors hover:bg-seafoam hover:text-ocean-dark"
+            >
+              <HouseIcon />
+            </Link>
             <Link href="/admin" className="flex items-center gap-2">
-              <CompassMark size={32} />
+              <OwlMark size={32} />
               <span className="font-display text-lg font-semibold text-navy">
-                ProvPlugget
+                ProvKlura
               </span>
             </Link>
             <nav className="hidden gap-4 text-sm font-medium text-navy/70 sm:flex">
