@@ -9,7 +9,7 @@ type OwlMarkProps = {
  * ProvKluras uggla — riktig illustration från varumärkesbiblioteket
  * (ersatte den enkla platshållar-SVG:n).
  */
-export function OwlMark({ className = "", size = 40 }: OwlMarkProps) {
+export function OwlMark({ className = "", size = 80 }: OwlMarkProps) {
   return (
     <Image
       src="/owl-logo.png"
