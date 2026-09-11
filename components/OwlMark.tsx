@@ -12,7 +12,7 @@ type OwlMarkProps = {
 export function OwlMark({ className = "", size = 40 }: OwlMarkProps) {
   return (
     <Image
-      src="/owl-final.png"
+      src="/owl-logo.png"
       alt="ProvKlura"
       width={size}
       height={size}
