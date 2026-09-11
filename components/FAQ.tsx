@@ -1,15 +1,19 @@
+"use client";
+
+import { useState } from "react";
+
 type FAQItem = { question: string; answer: string };
 
 const FAQ_ITEMS: FAQItem[] = [
   {
-    question: "Vad är ProvPlugget egentligen?",
+    question: "Vad är ProvKlura egentligen?",
     answer:
-      "ProvPlugget tar det ditt barn redan pluggar på — anteckningar, instuderingsfrågor, sidor ur läroboken — och gör om det till korta, träffsäkra frågor på några sekunder. Kort fråga → kort svar → direkt återkoppling → nästa fråga.",
+      "ProvKlura tar det ditt barn redan pluggar på — anteckningar, instuderingsfrågor, sidor ur läroboken — och gör om det till korta, träffsäkra frågor på några sekunder. Kort fråga → kort svar → direkt återkoppling → nästa fråga.",
   },
   {
     question: "Hur skiljer sig det här från andra pluggappar?",
     answer:
-      "De flesta pluggappar ger generiska frågor ur en färdig frågebank. ProvPlugget genererar frågorna från ert eget material — klistrar du in fredagens anteckningar om fotosyntes, är det fotosyntes eleven tränar på, inte allmänna biologifrågor som råkar likna det.",
+      "De flesta pluggappar ger generiska frågor ur en färdig frågebank. ProvKlura genererar frågorna från ert eget material — klistrar du in fredagens anteckningar om fotosyntes, är det fotosyntes eleven tränar på, inte allmänna biologifrågor som råkar likna det.",
   },
   {
     question: "Blir det här bara mer press för ett barn som redan tycker skolan är tungt?",
@@ -48,6 +52,33 @@ const FAQ_ITEMS: FAQItem[] = [
   },
 ];
 
+function FAQRow({ item }: { item: FAQItem }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="notebook-card p-4">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 text-left font-medium text-navy"
+      >
+        {item.question}
+        <span
+          className={
+            "shrink-0 text-navy/40 transition-transform" + (open ? " rotate-180" : "")
+          }
+        >
+          ⌄
+        </span>
+      </button>
+      {open && (
+        <p className="mt-3 text-sm leading-relaxed text-navy/70">{item.answer}</p>
+      )}
+    </div>
+  );
+}
+
 export function FAQ({
   title = "Vanliga frågor",
   className = "",
@@ -62,17 +93,7 @@ export function FAQ({
       </h2>
       <div className="mx-auto mt-6 max-w-2xl space-y-3">
         {FAQ_ITEMS.map((item) => (
-          <details key={item.question} className="notebook-card group p-4">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-medium text-navy">
-              {item.question}
-              <span className="shrink-0 text-navy/40 transition-transform group-open:rotate-180">
-                ⌄
-              </span>
-            </summary>
-            <p className="mt-3 text-sm leading-relaxed text-navy/70">
-              {item.answer}
-            </p>
-          </details>
+          <FAQRow key={item.question} item={item} />
         ))}
       </div>
     </section>

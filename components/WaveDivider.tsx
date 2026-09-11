@@ -4,11 +4,11 @@ type WaveDividerProps = {
 };
 
 /**
- * Signaturelementet för ProvPlugget: en handritad, lätt ojämn våglinje.
+ * Signaturelementet för ProvKlura: en handritad, lätt ojämn våglinje.
  * Används under rubriker och som avdelare — kopplar till "vågor" och
  * "handritade detaljer" i varumärkeskänslan utan att bli stökigt.
  */
-export function WaveDivider({ className = "", color = "#1E7291" }: WaveDividerProps) {
+export function WaveDivider({ className = "", color = "#1D5D7A" }: WaveDividerProps) {
   return (
     <svg
       viewBox="0 0 240 20"
