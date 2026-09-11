@@ -1,131 +1,106 @@
 import Link from "next/link";
-import { WaveDivider } from "@/components/WaveDivider";
-import { CopyLinkButton } from "@/components/CopyLinkButton";
-import { cancelInvitationAction } from "@/app/actions/students";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { Medal, medalForPercent } from "@/components/Medal";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
-export default async function EleverPage({
-  searchParams,
-}: {
-  searchParams: { invited?: string };
-}) {
-  const profile = await requireProfile("admin");
+export default async function ElevDashboard() {
+  const profile = await requireProfile("student");
   const supabase = createClient();
 
-  const [{ data: students }, { data: invitations }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("admin_id", profile.id)
-      .eq("role", "student")
-      .order("display_name"),
-    supabase
-      .from("invitations")
-      .select("*")
-      .eq("admin_id", profile.id)
-      .eq("status", "pending")
-      .order("created_at", { ascending: false }),
-  ]);
+  const { data: assignments } = await supabase
+    .from("assignments")
+    .select("study_set_id")
+    .eq("student_id", profile.id);
 
-  const justInvited = invitations?.find(
-    (i) => i.invite_token === searchParams.invited,
-  );
+  const studySetIds = assignments?.map((a) => a.study_set_id) ?? [];
+
+  const { data: studySets } = studySetIds.length
+    ? await supabase
+        .from("study_sets")
+        .select("id, title, status, exam_date, chapter_id")
+        .in("id", studySetIds)
+        .eq("status", "published")
+    : { data: [] as { id: string; title: string; status: string; exam_date: string | null; chapter_id: string }[] };
+
+  const chapterIds = [...new Set((studySets ?? []).map((s) => s.chapter_id))];
+
+  const { data: chapters } = chapterIds.length
+    ? await supabase.from("chapters").select("id, subject_id").in("id", chapterIds)
+    : { data: [] as { id: string; subject_id: string }[] };
+
+  const subjectIds = [...new Set((chapters ?? []).map((c) => c.subject_id))];
+
+  const { data: subjects } = subjectIds.length
+    ? await supabase.from("subjects").select("id, name").in("id", subjectIds)
+    : { data: [] as { id: string; name: string }[] };
+
+  const chapterToSubject = new Map((chapters ?? []).map((c) => [c.id, c.subject_id]));
+  const subjectNameById = new Map((subjects ?? []).map((s) => [s.id, s.name]));
+
+  // Bästa resultat per pluggprojekt, för att visa medaljen eleven faktiskt
+  // uppnått — inte det senaste försöket om ett tidigare var bättre.
+  const { data: attempts } = studySetIds.length
+    ? await supabase
+        .from("attempts")
+        .select("study_set_id, score, total_questions, completed_at")
+        .eq("student_id", profile.id)
+        .not("completed_at", "is", null)
+        .in("study_set_id", studySetIds)
+    : { data: [] as { study_set_id: string; score: number | null; total_questions: number | null; completed_at: string | null }[] };
+
+  const bestPercentByStudySet = new Map<string, number>();
+  for (const a of attempts ?? []) {
+    if (!a.total_questions || a.score === null) continue;
+    const percent = Math.round((a.score / a.total_questions) * 100);
+    const current = bestPercentByStudySet.get(a.study_set_id) ?? -1;
+    if (percent > current) bestPercentByStudySet.set(a.study_set_id, percent);
+  }
+
+  const firstName = profile.display_name.split(" ")[0];
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-semibold text-navy">
-            Elever
-          </h1>
-          <WaveDivider className="mt-2 h-3 w-24" color="#FF6B4A" />
-        </div>
-        <Link href="/admin/elever/ny" className="btn-primary">
-          + Lägg till elev
-        </Link>
-      </div>
+      <h1 className="font-display text-2xl font-semibold text-navy">
+        Hej {firstName}! 👋
+      </h1>
 
-      {justInvited && (
-        <div className="mt-6 rounded-xl border border-turquoise bg-seafoam p-4">
-          <p className="text-sm font-medium text-navy">
-            Inbjudan skapad för {justInvited.student_name}. Skicka länken:
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <code className="break-all rounded-lg bg-white px-3 py-2 text-xs text-navy/80">
-              {SITE_URL}/valkommen/{justInvited.invite_token}
-            </code>
-            <CopyLinkButton
-              link={`${SITE_URL}/valkommen/${justInvited.invite_token}`}
-            />
-          </div>
-          <p className="mt-2 text-xs text-navy/50">
-            Automatiska inbjudningsmejl är inte kopplat in än — dela länken
-            manuellt tills vidare.
-          </p>
+      {!studySets?.length ? (
+        <p className="mt-4 text-navy/70">
+          Inga pluggprojekt tilldelade än. När din admin lägger till ett prov
+          dyker det upp här.
+        </p>
+      ) : (
+        <div className="mt-6 space-y-3">
+          {studySets.map((s) => {
+            const subjectId = chapterToSubject.get(s.chapter_id);
+            const subjectName = subjectId ? subjectNameById.get(subjectId) : undefined;
+            const bestPercent = bestPercentByStudySet.get(s.id);
+            const tier = bestPercent !== undefined ? medalForPercent(bestPercent) : null;
+
+            return (
+              <Link
+                key={s.id}
+                href={`/elev/plugga/${s.id}`}
+                className="notebook-card flex items-center justify-between gap-3 p-4 transition-transform hover:-translate-y-0.5"
+              >
+                <div>
+                  {subjectName && <p className="text-xs text-navy/50">{subjectName}</p>}
+                  <p className="font-medium text-navy">{s.title}</p>
+                  {s.exam_date && (
+                    <p className="mt-1 text-sm text-coral">Prov {s.exam_date}</p>
+                  )}
+                </div>
+                {tier && (
+                  <div className="shrink-0 text-center">
+                    <Medal tier={tier} size={40} />
+                    <p className="mt-0.5 font-mono text-xs text-navy/50">{bestPercent}%</p>
+                  </div>
+                )}
+              </Link>
+            );
+          })}
         </div>
       )}
-
-      <section className="mt-8">
-        {!students?.length && !invitations?.length ? (
-          <div className="notebook-card p-8 text-center">
-            <p className="text-navy/70">Inga elever än. Lägg till din första!</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {students?.map((student) => (
-              <Link
-                key={student.id}
-                href={`/admin/elever/${student.id}`}
-                className="notebook-card flex items-center justify-between p-4 transition-transform hover:-translate-y-0.5"
-              >
-                <div>
-                  <p className="font-medium text-navy">
-                    {student.display_name}
-                  </p>
-                  <p className="text-sm text-navy/60">
-                    {student.email} · Åk {student.grade_level}
-                  </p>
-                </div>
-                <span className="rounded-full bg-seafoam px-3 py-1 text-xs font-medium text-ocean-dark">
-                  Aktiv
-                </span>
-              </Link>
-            ))}
-
-            {invitations?.map((invitation) => (
-              <div
-                key={invitation.id}
-                className="notebook-card flex items-center justify-between p-4 opacity-80"
-              >
-                <div>
-                  <p className="font-medium text-navy">
-                    {invitation.student_name}
-                  </p>
-                  <p className="text-sm text-navy/60">
-                    {invitation.email} · Åk {invitation.grade_level}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-sun/20 px-3 py-1 text-xs font-medium text-navy/70">
-                    Väntar på aktivering
-                  </span>
-                  <form action={cancelInvitationAction.bind(null, invitation.id)}>
-                    <button
-                      type="submit"
-                      className="text-xs text-navy/40 underline hover:text-coral"
-                    >
-                      Avbryt
-                    </button>
-                  </form>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
     </div>
   );
 }
