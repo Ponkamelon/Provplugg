@@ -12,7 +12,11 @@ type StudySetListItem = {
   questions: { count: number }[] | null;
 };
 
-export default async function ProvListPage() {
+export default async function ProvListPage({
+  searchParams,
+}: {
+  searchParams: { created_parts?: string };
+}) {
   const profile = await requireProfile("admin");
   const supabase = createClient();
 
@@ -23,6 +27,7 @@ export default async function ProvListPage() {
     .order("created_at", { ascending: false });
 
   const studySets = (data ?? []) as unknown as StudySetListItem[];
+  const createdParts = Number(searchParams.created_parts ?? 0);
 
   return (
     <div>
@@ -31,12 +36,25 @@ export default async function ProvListPage() {
           <h1 className="font-display text-3xl font-semibold text-navy">
             Pluggprojekt
           </h1>
-          <WaveDivider className="mt-2 h-3 w-24" color="#FF7A59" />
+          <WaveDivider className="mt-2 h-3 w-24" color="#FF6B4A" />
         </div>
         <Link href="/admin/prov/ny" className="btn-primary">
           + Nytt pluggprojekt
         </Link>
       </div>
+
+      {createdParts > 1 && (
+        <div className="mt-4 rounded-xl border border-turquoise bg-seafoam p-4">
+          <p className="text-sm font-medium text-navy">
+            Materialet var stort, så det blev {createdParts} delprov (Del 1,
+            Del 2, ...) istället för ett.
+          </p>
+          <p className="mt-1 text-xs text-navy/60">
+            Del 1 har redan genererade frågor. Öppna varje övrig del och
+            tryck "Generera frågor" när du är redo för den.
+          </p>
+        </div>
+      )}
 
       <div className="mt-8 space-y-3">
         {!studySets.length && (
