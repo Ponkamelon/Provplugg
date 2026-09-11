@@ -14,7 +14,7 @@ export default function AuthLayout({
         color="#2CC4C4"
       />
       <Link href="/" className="relative z-10 mb-8 flex items-center gap-3">
-        <OwlMark size={36} />
+        <OwlMark size={72} />
         <span className="font-display text-xl font-semibold text-navy">
           ProvKlura
         </span>
