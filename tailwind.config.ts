@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
-// Design tokens for ProvPlugget — se app/globals.css för CSS-variablerna.
-// Känsla: ungdomlig, äventyrlig, lätt rebellisk kustkänsla. "Vi fixar det."
+// Design tokens for ProvKlura — se app/globals.css för CSS-variablerna.
+// Känsla: fokus, frihet, framåt. "Klura ut provet." (moodboard-ombrandning)
 const config: Config = {
   content: [
     "./app/**/*.{ts,tsx}",
@@ -11,32 +11,33 @@ const config: Config = {
     extend: {
       colors: {
         sand: {
-          DEFAULT: "#F4EBD6", // bakgrund — torr sand
-          deep: "#E3D3AC", // kant/divider — våt sand
+          DEFAULT: "#E7D7B2", // bakgrund — sand
+          deep: "#D4C093", // kant/divider — mörkare sand
         },
-        navy: "#163449", // primärtext — natthav
+        navy: "#0E1114", // primärtext — kolsvart
         ocean: {
-          DEFAULT: "#1E7291", // primära knappar/länkar
-          dark: "#124F63",
+          DEFAULT: "#1D5D7A", // primära knappar/länkar — havsblå
+          dark: "#154A63",
         },
-        turquoise: "#6FC2B4", // sekundär accent — bleknad turkos
-        seafoam: "#E4F1EA", // ljusa kort/ytor
+        turquoise: "#2CC4C4", // sekundär accent — turkos
+        seafoam: "#DCF3F0", // ljusa kort/ytor
         coral: {
-          DEFAULT: "#FF7A59", // call-to-action / highlight
-          dark: "#E0603F",
+          DEFAULT: "#FF6B4A", // call-to-action / highlight — korall
+          dark: "#E0522F",
         },
-        sun: "#F4B942", // framgång, stjärnor, highlights
+        sun: "#F4B942", // framgång, guldmedalj, highlights
       },
       fontFamily: {
-        display: ["var(--font-display)", "serif"],
+        display: ["var(--font-display)", "sans-serif"],
         sans: ["var(--font-body)", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
+        accent: ["var(--font-accent)", "cursive"],
       },
       borderRadius: {
         card: "1.25rem",
       },
       boxShadow: {
-        card: "0 4px 0 0 rgba(22, 52, 73, 0.08)",
+        card: "0 4px 0 0 rgba(14, 17, 20, 0.1)",
       },
     },
   },

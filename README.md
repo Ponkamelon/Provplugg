@@ -1,4 +1,4 @@
-# ProvPlugget
+# ProvKlura
 
 Next.js-scaffolding: autentisering + rollhantering (admin/elev) mot
 Supabase-projektet **"plugg hjälp"**. Databasschemat (12 tabeller + RLS)
@@ -18,7 +18,7 @@ npm run dev
 
 1. **Authentication → URL Configuration**: lägg till
    `http://localhost:3000/auth/callback` under Redirect URLs (och senare
-   din Vercel-URL, t.ex. `https://provplugget.vercel.app/auth/callback`).
+   din Vercel-URL, t.ex. `https://provklura.vercel.app/auth/callback`).
 2. **Authentication → Providers → Email**: om "Confirm email" är påslaget
    måste kontot bekräftas via mejl innan inloggning fungerar (appen
    hanterar båda lägena automatiskt, se nedan). Under utveckling är det
