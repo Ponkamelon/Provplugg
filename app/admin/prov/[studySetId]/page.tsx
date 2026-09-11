@@ -74,6 +74,9 @@ export default async function StudySetReviewPage({
   const highConfidenceDrafts =
     questions?.filter((q) => q.status === "draft" && q.verification_status === "verified") ?? [];
   const failedMaterial = materials?.find((m) => m.processing_status === "error");
+  // "uploaded" = sparat men aldrig genererat än — t.ex. Del 2/3 av ett
+  // uppdelat pluggprojekt som väntar på att admin öppnar det.
+  const pendingMaterial = materials?.find((m) => m.processing_status === "uploaded");
 
   return (
     <div>
@@ -83,7 +86,7 @@ export default async function StudySetReviewPage({
       <h1 className="font-display text-3xl font-semibold text-navy">
         {studySet.title}
       </h1>
-      <WaveDivider className="mt-2 h-3 w-24" color="#FF7A59" />
+      <WaveDivider className="mt-2 h-3 w-24" color="#FF6B4A" />
 
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-navy/60">
         <span>Åk {studySet.grade_level}</span>
@@ -113,6 +116,27 @@ export default async function StudySetReviewPage({
         </div>
       )}
 
+      {pendingMaterial && (
+        <div className="mt-4 rounded-xl border border-turquoise bg-seafoam p-4">
+          <p className="text-sm font-medium text-navy">
+            Materialet är sparat men frågorna är inte genererade än.
+          </p>
+          <p className="mt-1 text-xs text-navy/60">
+            Det här blev ett eget delprov eftersom materialet var stort —
+            klicka nedan när du är redo att generera frågor för den här
+            delen.
+          </p>
+          <form
+            action={regenerateQuestionsAction.bind(null, params.studySetId, pendingMaterial.id)}
+            className="mt-3"
+          >
+            <SubmitButton pendingText="Genererar frågor..." className="btn-primary">
+              Generera frågor
+            </SubmitButton>
+          </form>
+        </div>
+      )}
+
       {highConfidenceDrafts.length > 0 && (
         <form action={publishAllReviewedAction.bind(null, params.studySetId)} className="mt-4">
           <button type="submit" className="btn-primary">
@@ -122,7 +146,7 @@ export default async function StudySetReviewPage({
       )}
 
       <section className="mt-8 space-y-3">
-        {questions?.length === 0 && !failedMaterial && (
+        {questions?.length === 0 && !failedMaterial && !pendingMaterial && (
           <p className="text-navy/60">
             Inga frågor genererades ännu. Ge det en stund, eller lägg till mer
             material.
