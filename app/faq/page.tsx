@@ -11,7 +11,7 @@ export default function FaqPage() {
     <div className="min-h-screen bg-sand px-6 py-16">
       <div className="mx-auto max-w-2xl">
         <Link href="/" className="flex items-center gap-3">
-          <OwlMark size={32} />
+          <OwlMark size={64} />
           <span className="font-display text-xl font-semibold text-navy">
             ProvKlura
           </span>
