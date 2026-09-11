@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { CompassMark } from "@/components/CompassMark";
+import { OwlMark } from "@/components/OwlMark";
 import { FAQ } from "@/components/FAQ";
 
 export const metadata = {
-  title: "Vanliga frågor – ProvPlugget",
+  title: "Vanliga frågor – ProvKlura",
 };
 
 export default function FaqPage() {
@@ -11,9 +11,9 @@ export default function FaqPage() {
     <div className="min-h-screen bg-sand px-6 py-16">
       <div className="mx-auto max-w-2xl">
         <Link href="/" className="flex items-center gap-3">
-          <CompassMark size={32} />
+          <OwlMark size={32} />
           <span className="font-display text-xl font-semibold text-navy">
-            ProvPlugget
+            ProvKlura
           </span>
         </Link>
 
