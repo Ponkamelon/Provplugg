@@ -25,7 +25,7 @@ export default async function AdminLayout({
               <HouseIcon />
             </Link>
             <Link href="/admin" className="flex items-center gap-2">
-              <OwlMark size={32} />
+              <OwlMark size={64} />
               <span className="font-display text-lg font-semibold text-navy">
                 ProvKlura
               </span>
