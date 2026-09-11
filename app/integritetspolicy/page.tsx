@@ -1,23 +1,23 @@
 import Link from "next/link";
-import { CompassMark } from "@/components/CompassMark";
+import { OwlMark } from "@/components/OwlMark";
 
 export const metadata = {
-  title: "Integritetspolicy – ProvPlugget",
+  title: "Integritetspolicy – ProvKlura",
 };
 
 export default function IntegritetspolicyPage() {
   return (
     <div className="mx-auto min-h-screen max-w-2xl bg-sand px-6 py-16">
       <Link href="/" className="mb-8 flex items-center gap-3">
-        <CompassMark size={32} />
+        <OwlMark size={32} />
         <span className="font-display text-lg font-semibold text-navy">
-          ProvPlugget
+          ProvKlura
         </span>
       </Link>
 
       <div className="mb-8 rounded-xl border border-coral bg-coral/10 p-4 text-sm text-coral-dark">
         <strong>Utkast, inte juridiskt granskat.</strong> Den här texten är en
-        utgångspunkt, inte färdig juridisk rådgivning. Eftersom ProvPlugget
+        utgångspunkt, inte färdig juridisk rådgivning. Eftersom ProvKlura
         hanterar uppgifter om barn bör en jurist eller GDPR-kunnig person gå
         igenom och anpassa texten innan den används på riktigt, särskilt om
         appen används av fler än den egna familjen eller ett enstaka
@@ -36,7 +36,7 @@ export default function IntegritetspolicyPage() {
           </h2>
           <p className="mt-2">
             [Ditt namn / organisation] är personuppgiftsansvarig för de
-            personuppgifter som behandlas i ProvPlugget. Kontakta oss på
+            personuppgifter som behandlas i ProvKlura. Kontakta oss på
             [e-postadress] vid frågor om den här policyn eller om dina
             uppgifter.
           </p>
