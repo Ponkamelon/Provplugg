@@ -9,7 +9,7 @@ export default function IntegritetspolicyPage() {
   return (
     <div className="mx-auto min-h-screen max-w-2xl bg-sand px-6 py-16">
       <Link href="/" className="mb-8 flex items-center gap-3">
-        <OwlMark size={32} />
+        <OwlMark size={64} />
         <span className="font-display text-lg font-semibold text-navy">
           ProvKlura
         </span>
