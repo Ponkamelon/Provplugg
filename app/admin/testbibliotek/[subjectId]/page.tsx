@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { WaveDivider } from "@/components/WaveDivider";
+import { OfficialBadge } from "@/components/OfficialBadge";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -93,12 +94,15 @@ export default async function TestbibliotekSubjectPage({
     const availableStudents = (students ?? []).filter((s) => !sharedStudentIds.has(s.id));
 
     return (
-      <div className="notebook-card p-4">
+      <div className="notebook-card border-l-4 border-coral p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="font-medium text-navy">{set.title}</p>
-          <span className="whitespace-nowrap text-xs text-navy/50">
-            {countByStudySet.get(set.id) ?? 0} frågor
-          </span>
+          <div className="flex shrink-0 items-center gap-2">
+            <OfficialBadge />
+            <span className="whitespace-nowrap text-xs text-navy/50">
+              {countByStudySet.get(set.id) ?? 0} frågor
+            </span>
+          </div>
         </div>
 
         {shares.length > 0 && (
