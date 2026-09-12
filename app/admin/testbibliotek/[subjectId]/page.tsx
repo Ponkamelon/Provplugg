@@ -33,6 +33,10 @@ export default async function TestbibliotekSubjectPage({
     return <p className="text-navy/70">Hittade inte ämnet.</p>;
   }
 
+  // Sparad som egen variabel: TypeScript "minns" inte null-kollen ovan
+  // inuti den nästlade TestRow-funktionen längre ner.
+  const subjectId = subject.id;
+
   const { data: rawStudySets } = await supabase
     .from("study_sets")
     .select("id, title, set_type, sort_order, chapters!inner(subject_id)")
@@ -102,7 +106,7 @@ export default async function TestbibliotekSubjectPage({
             {shares.map((share) => (
               <form
                 key={share.id}
-                action={unshareOfficialTestAction.bind(null, share.id, subject.id)}
+                action={unshareOfficialTestAction.bind(null, share.id, subjectId)}
               >
                 <button
                   type="submit"
@@ -118,7 +122,7 @@ export default async function TestbibliotekSubjectPage({
 
         {availableStudents.length > 0 ? (
           <form
-            action={shareOfficialTestAction.bind(null, set.id, subject.id)}
+            action={shareOfficialTestAction.bind(null, set.id, subjectId)}
             className="mt-3 flex items-center gap-2"
           >
             <select
