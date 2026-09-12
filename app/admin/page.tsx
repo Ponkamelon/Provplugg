@@ -3,69 +3,46 @@ import { WaveDivider } from "@/components/WaveDivider";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function AdminDashboard() {
-  const profile = await requireProfile("admin");
+export default async function TestbibliotekPage() {
+  await requireProfile("admin");
   const supabase = createClient();
 
-  const [{ count: studentCount }, { count: pendingCount }, { count: studySetCount }] =
-    await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .eq("admin_id", profile.id)
-        .eq("role", "student"),
-      supabase
-        .from("invitations")
-        .select("id", { count: "exact", head: true })
-        .eq("admin_id", profile.id)
-        .eq("status", "pending"),
-      supabase
-        .from("study_sets")
-        .select("id", { count: "exact", head: true })
-        .eq("admin_id", profile.id),
-    ]);
-
-  const firstName = profile.display_name.split(" ")[0];
+  const { data: subjects } = await supabase
+    .from("subjects")
+    .select("id, name")
+    .eq("is_official", true)
+    .order("name");
 
   return (
     <div>
       <h1 className="font-display text-3xl font-semibold text-navy">
-        Hej {firstName}!
+        Testbibliotek
       </h1>
       <WaveDivider className="mt-2 h-3 w-24" color="#FF6B4A" />
+      <p className="mt-4 max-w-lg text-navy/70">
+        Färdiga, kvalitetssäkrade tester per ämne — bra inför nationella prov
+        i årskurs 9. Dela direkt med dina elever, inget material att klistra
+        in.
+      </p>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        <Link
-          href="/admin/elever"
-          className="notebook-card block p-6 transition-transform hover:-translate-y-0.5"
-        >
-          <p className="text-sm text-navy/60">Elever</p>
-          <p className="mt-1 font-display text-3xl font-semibold text-navy">
-            {studentCount ?? 0}
-          </p>
-          {pendingCount ? (
-            <p className="mt-1 text-sm text-coral">
-              {pendingCount} väntar på aktivering
+      <div className="mt-8 space-y-3">
+        {!subjects?.length ? (
+          <div className="notebook-card p-8 text-center">
+            <p className="text-navy/70">
+              Inga färdiga ämnen ännu — fler är på väg.
             </p>
-          ) : null}
-        </Link>
-
-        <Link
-          href="/admin/prov"
-          className="notebook-card block p-6 transition-transform hover:-translate-y-0.5"
-        >
-          <p className="text-sm text-navy/60">Pluggprojekt</p>
-          <p className="mt-1 font-display text-3xl font-semibold text-navy">
-            {studySetCount ?? 0}
-          </p>
-        </Link>
-
-        <Link
-          href="/admin/prov/ny"
-          className="notebook-card flex flex-col items-center justify-center gap-2 p-6 text-center transition-transform hover:-translate-y-0.5"
-        >
-          <span className="btn-primary">+ Nytt pluggprojekt</span>
-        </Link>
+          </div>
+        ) : (
+          subjects.map((s) => (
+            <Link
+              key={s.id}
+              href={`/admin/testbibliotek/${s.id}`}
+              className="notebook-card block p-4 transition-transform hover:-translate-y-0.5"
+            >
+              <p className="font-medium text-navy">{s.name}</p>
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );
