@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Medal, medalForPercent } from "@/components/Medal";
+import { OfficialBadge } from "@/components/OfficialBadge";
 
 export default async function ElevDashboard() {
   const profile = await requireProfile("student");
@@ -17,10 +18,19 @@ export default async function ElevDashboard() {
   const { data: studySets } = studySetIds.length
     ? await supabase
         .from("study_sets")
-        .select("id, title, status, exam_date, chapter_id")
+        .select("id, title, status, exam_date, chapter_id, is_official")
         .in("id", studySetIds)
         .eq("status", "published")
-    : { data: [] as { id: string; title: string; status: string; exam_date: string | null; chapter_id: string }[] };
+    : {
+        data: [] as {
+          id: string;
+          title: string;
+          status: string;
+          exam_date: string | null;
+          chapter_id: string;
+          is_official: boolean;
+        }[],
+      };
 
   const chapterIds = [...new Set((studySets ?? []).map((s) => s.chapter_id))];
 
@@ -81,11 +91,14 @@ export default async function ElevDashboard() {
               <Link
                 key={s.id}
                 href={`/elev/plugga/${s.id}`}
-                className="notebook-card flex items-center justify-between gap-3 p-4 transition-transform hover:-translate-y-0.5"
+                className={`notebook-card flex items-center justify-between gap-3 p-4 transition-transform hover:-translate-y-0.5 ${
+                  s.is_official ? "border-l-4 border-coral" : ""
+                }`}
               >
                 <div>
                   {subjectName && <p className="text-xs text-navy/50">{subjectName}</p>}
                   <p className="font-medium text-navy">{s.title}</p>
+                  {s.is_official && <OfficialBadge className="mt-1" />}
                   {s.exam_date && (
                     <p className="mt-1 text-sm text-coral">Prov {s.exam_date}</p>
                   )}
