@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { WaveDivider } from "@/components/WaveDivider";
+import { OfficialBadge } from "@/components/OfficialBadge";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -37,9 +38,12 @@ export default async function TestbibliotekPage() {
             <Link
               key={s.id}
               href={`/admin/testbibliotek/${s.id}`}
-              className="notebook-card block p-4 transition-transform hover:-translate-y-0.5"
+              className="notebook-card block border-l-4 border-coral p-4 transition-transform hover:-translate-y-0.5"
             >
-              <p className="font-medium text-navy">{s.name}</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-medium text-navy">{s.name}</p>
+                <OfficialBadge />
+              </div>
             </Link>
           ))
         )}
