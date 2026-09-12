@@ -37,6 +37,9 @@ export default async function AdminLayout({
               <Link href="/admin/prov" className="hover:text-ocean">
                 Pluggprojekt
               </Link>
+              <Link href="/admin/testbibliotek" className="hover:text-ocean">
+                Testbibliotek
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-4 text-sm">
