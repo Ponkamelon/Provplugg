@@ -15,18 +15,18 @@ export default async function AdminLayout({
     <div className="min-h-screen bg-sand">
       <header className="border-b border-sand-deep bg-white/60">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <Link
               href="/admin"
               aria-label="Till startsidan"
               title="Till startsidan"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-navy/60 transition-colors hover:bg-seafoam hover:text-ocean-dark"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-navy/60 transition-colors hover:bg-seafoam hover:text-ocean-dark"
             >
               <HouseIcon />
             </Link>
-            <Link href="/admin" className="flex items-center gap-2">
+            <Link href="/admin" className="flex shrink-0 items-center gap-2">
               <OwlMark size={64} />
-              <span className="font-display text-lg font-semibold text-navy">
+              <span className="hidden font-display text-lg font-semibold text-navy sm:inline">
                 ProvKlura
               </span>
             </Link>
@@ -42,8 +42,10 @@ export default async function AdminLayout({
               </Link>
             </nav>
           </div>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-navy/60">{profile.display_name}</span>
+          <div className="flex shrink-0 items-center gap-2 text-sm sm:gap-4">
+            <span className="hidden text-navy/60 sm:inline">
+              {profile.display_name}
+            </span>
             <form action={signOutAction}>
               <button type="submit" className="text-ocean underline">
                 Logga ut

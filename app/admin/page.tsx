@@ -66,6 +66,14 @@ export default async function AdminDashboard() {
         >
           <span className="btn-primary">+ Nytt pluggprojekt</span>
         </Link>
+
+        <Link
+          href="/admin/testbibliotek"
+          className="notebook-card flex flex-col items-center justify-center gap-2 border-l-4 border-coral p-6 text-center transition-transform hover:-translate-y-0.5"
+        >
+          <span className="btn-secondary">📚 Nationella prov</span>
+          <span className="text-xs text-navy/50">Färdiga, dela direkt</span>
+        </Link>
       </div>
     </div>
   );
