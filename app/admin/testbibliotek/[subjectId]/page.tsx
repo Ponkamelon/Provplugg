@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { WaveDivider } from "@/components/WaveDivider";
 import { OfficialBadge } from "@/components/OfficialBadge";
+import { getSubjectVisual } from "@/lib/subjectVisuals";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -34,9 +35,8 @@ export default async function TestbibliotekSubjectPage({
     return <p className="text-navy/70">Hittade inte ämnet.</p>;
   }
 
-  // Sparad som egen variabel: TypeScript "minns" inte null-kollen ovan
-  // inuti den nästlade TestRow-funktionen längre ner.
   const subjectId = subject.id;
+  const subjectVisual = getSubjectVisual(subject.name);
 
   const { data: rawStudySets } = await supabase
     .from("study_sets")
@@ -94,7 +94,7 @@ export default async function TestbibliotekSubjectPage({
     const availableStudents = (students ?? []).filter((s) => !sharedStudentIds.has(s.id));
 
     return (
-      <div className="notebook-card border-l-4 border-coral p-4">
+      <div className="notebook-card p-4" style={{ borderLeft: `6px solid ${subjectVisual.color}` }}>
         <div className="flex items-center justify-between gap-3">
           <p className="font-medium text-navy">{set.title}</p>
           <div className="flex shrink-0 items-center gap-2">
