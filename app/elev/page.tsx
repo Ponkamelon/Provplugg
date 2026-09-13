@@ -2,7 +2,6 @@ import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Medal, medalForPercent } from "@/components/Medal";
-import { OfficialBadge } from "@/components/OfficialBadge";
 
 export default async function ElevDashboard() {
   const profile = await requireProfile("student");
@@ -15,7 +14,7 @@ export default async function ElevDashboard() {
 
   const studySetIds = assignments?.map((a) => a.study_set_id) ?? [];
 
-  const { data: studySets } = studySetIds.length
+  const { data: allStudySets } = studySetIds.length
     ? await supabase
         .from("study_sets")
         .select("id, title, status, exam_date, chapter_id, is_official")
@@ -32,7 +31,12 @@ export default async function ElevDashboard() {
         }[],
       };
 
-  const chapterIds = [...new Set((studySets ?? []).map((s) => s.chapter_id))];
+  // Nationella prov (is_official) har flyttat till sin egen sida,
+  // /elev/nationella — visas bara som en genväg härifrån.
+  const studySets = (allStudySets ?? []).filter((s) => !s.is_official);
+  const hasNationella = (allStudySets ?? []).some((s) => s.is_official);
+
+  const chapterIds = [...new Set(studySets.map((s) => s.chapter_id))];
 
   const { data: chapters } = chapterIds.length
     ? await supabase.from("chapters").select("id, subject_id").in("id", chapterIds)
@@ -49,13 +53,14 @@ export default async function ElevDashboard() {
 
   // Bästa resultat per pluggprojekt, för att visa medaljen eleven faktiskt
   // uppnått — inte det senaste försöket om ett tidigare var bättre.
-  const { data: attempts } = studySetIds.length
+  const activeIds = studySets.map((s) => s.id);
+  const { data: attempts } = activeIds.length
     ? await supabase
         .from("attempts")
         .select("study_set_id, score, total_questions, completed_at")
         .eq("student_id", profile.id)
         .not("completed_at", "is", null)
-        .in("study_set_id", studySetIds)
+        .in("study_set_id", activeIds)
     : { data: [] as { study_set_id: string; score: number | null; total_questions: number | null; completed_at: string | null }[] };
 
   const bestPercentByStudySet = new Map<string, number>();
@@ -74,10 +79,26 @@ export default async function ElevDashboard() {
         Hej {firstName}! 👋
       </h1>
 
-      {!studySets?.length ? (
-        <p className="mt-4 text-navy/70">
-          Inga pluggprojekt tilldelade än. När din admin lägger till ett prov
-          dyker det upp här.
+      {hasNationella && (
+        <Link
+          href="/elev/nationella"
+          className="notebook-card mt-6 flex items-center justify-between gap-3 border-l-4 border-coral p-4 transition-transform hover:-translate-y-0.5"
+        >
+          <div>
+            <p className="font-medium text-navy">Nationella prov</p>
+            <p className="text-sm text-navy/60">
+              Dina tilldelade övningsprov inför nationella proven
+            </p>
+          </div>
+          <span className="text-navy/40">→</span>
+        </Link>
+      )}
+
+      {!studySets.length ? (
+        <p className="mt-6 text-navy/70">
+          {hasNationella
+            ? "Inga andra pluggprojekt tilldelade än."
+            : "Inga pluggprojekt tilldelade än. När din admin lägger till ett prov dyker det upp här."}
         </p>
       ) : (
         <div className="mt-6 space-y-3">
@@ -91,14 +112,11 @@ export default async function ElevDashboard() {
               <Link
                 key={s.id}
                 href={`/elev/plugga/${s.id}`}
-                className={`notebook-card flex items-center justify-between gap-3 p-4 transition-transform hover:-translate-y-0.5 ${
-                  s.is_official ? "border-l-4 border-coral" : ""
-                }`}
+                className="notebook-card flex items-center justify-between gap-3 p-4 transition-transform hover:-translate-y-0.5"
               >
                 <div>
                   {subjectName && <p className="text-xs text-navy/50">{subjectName}</p>}
                   <p className="font-medium text-navy">{s.title}</p>
-                  {s.is_official && <OfficialBadge className="mt-1" />}
                   {s.exam_date && (
                     <p className="mt-1 text-sm text-coral">Prov {s.exam_date}</p>
                   )}
