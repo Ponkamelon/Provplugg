@@ -9,7 +9,10 @@ import {
   publishAllReviewedAction,
   assignStudySetAction,
 } from "@/app/actions/questions";
-import { regenerateQuestionsAction } from "@/app/actions/studySets";
+import {
+  regenerateQuestionsAction,
+  deleteStudySetAction,
+} from "@/app/actions/studySets";
 import { SubmitButton } from "@/components/SubmitButton";
 import type { Tables } from "@/lib/database.types";
 
@@ -48,6 +51,12 @@ export default async function StudySetReviewPage({
 
   const studySet = rawStudySet as unknown as StudySetWithChapter;
 
+  const { data: myGuardianRows } = await supabase
+    .from("student_guardians")
+    .select("student_id")
+    .eq("admin_id", profile.id);
+  const myStudentIds = myGuardianRows?.map((g) => g.student_id) ?? [];
+
   const [{ data: questions }, { data: students }, { data: assignments }, { data: materials }] =
     await Promise.all([
       supabase
@@ -55,12 +64,14 @@ export default async function StudySetReviewPage({
         .select("*")
         .eq("study_set_id", params.studySetId)
         .order("created_at"),
-      supabase
-        .from("profiles")
-        .select("id, display_name, grade_level")
-        .eq("admin_id", profile.id)
-        .eq("role", "student")
-        .order("display_name"),
+      myStudentIds.length
+        ? supabase
+            .from("profiles")
+            .select("id, display_name, grade_level")
+            .in("id", myStudentIds)
+            .eq("role", "student")
+            .order("display_name")
+        : Promise.resolve({ data: [] as { id: string; display_name: string; grade_level: number }[] }),
       supabase.from("assignments").select("student_id").eq("study_set_id", params.studySetId),
       supabase
         .from("source_material")
@@ -80,13 +91,26 @@ export default async function StudySetReviewPage({
 
   return (
     <div>
-      <p className="text-sm text-navy/50">
-        {studySet.chapters?.subjects?.name} · {studySet.chapters?.title}
-      </p>
-      <h1 className="font-display text-3xl font-semibold text-navy">
-        {studySet.title}
-      </h1>
-      <WaveDivider className="mt-2 h-3 w-24" color="#FF6B4A" />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-sm text-navy/50">
+            {studySet.chapters?.subjects?.name} · {studySet.chapters?.title}
+          </p>
+          <h1 className="font-display text-3xl font-semibold text-navy">
+            {studySet.title}
+          </h1>
+          <WaveDivider className="mt-2 h-3 w-24" color="#FF6B4A" />
+        </div>
+        <form action={deleteStudySetAction.bind(null, params.studySetId)}>
+          <button
+            type="submit"
+            className="text-xs text-navy/40 underline hover:text-coral"
+            title="Tar bort pluggprojektet och alla dess frågor, tilldelningar och elevförsök permanent"
+          >
+            Ta bort pluggprojekt
+          </button>
+        </form>
+      </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-navy/60">
         <span>Åk {studySet.grade_level}</span>
