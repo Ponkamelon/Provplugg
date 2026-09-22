@@ -316,3 +316,18 @@ export async function regenerateQuestionsAction(studySetId: string, materialId: 
 
   revalidatePath(`/admin/prov/${studySetId}`);
 }
+
+/**
+ * Tar bort ett pluggprojekt helt — kaskad rensar automatiskt dess frågor,
+ * källmaterial, tilldelningar och elevförsök (se FK-constraints). RLS
+ * (study_sets_admin_all) säkerställer att bara ägande admin kan göra det.
+ */
+export async function deleteStudySetAction(studySetId: string) {
+  await requireProfile("admin");
+  const supabase = createClient();
+
+  await supabase.from("study_sets").delete().eq("id", studySetId);
+
+  revalidatePath("/admin/prov");
+  redirect("/admin/prov");
+}
