@@ -61,12 +61,21 @@ export default async function TestbibliotekSubjectPage({
     countByStudySet.set(q.study_set_id, (countByStudySet.get(q.study_set_id) ?? 0) + 1);
   }
 
-  const { data: students } = await supabase
-    .from("profiles")
-    .select("id, display_name")
-    .eq("role", "student")
-    .eq("admin_id", profile.id)
-    .order("display_name");
+  const { data: myGuardianRows } = await supabase
+    .from("student_guardians")
+    .select("student_id")
+    .eq("admin_id", profile.id);
+
+  const myStudentIds = myGuardianRows?.map((g) => g.student_id) ?? [];
+
+  const { data: students } = myStudentIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, display_name")
+        .eq("role", "student")
+        .in("id", myStudentIds)
+        .order("display_name")
+    : { data: [] as { id: string; display_name: string }[] };
 
   const { data: existingAssignments } = studySetIds.length
     ? await supabase
