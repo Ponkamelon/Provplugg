@@ -10,10 +10,9 @@ export default async function AdminDashboard() {
   const [{ count: studentCount }, { count: pendingCount }, { count: studySetCount }] =
     await Promise.all([
       supabase
-        .from("profiles")
+        .from("student_guardians")
         .select("id", { count: "exact", head: true })
-        .eq("admin_id", profile.id)
-        .eq("role", "student"),
+        .eq("admin_id", profile.id),
       supabase
         .from("invitations")
         .select("id", { count: "exact", head: true })
