@@ -103,7 +103,10 @@ export default async function TestbibliotekSubjectPage({
     const availableStudents = (students ?? []).filter((s) => !sharedStudentIds.has(s.id));
 
     return (
-      <div className="notebook-card p-4" style={{ borderLeft: `6px solid ${subjectVisual.color}` }}>
+      <div
+        className="notebook-card scroll-mb-24 p-4"
+        style={{ borderLeft: `6px solid ${subjectVisual.color}` }}
+      >
         <div className="flex items-center justify-between gap-3">
           <p className="font-medium text-navy">{set.title}</p>
           <div className="flex shrink-0 items-center gap-2">
@@ -207,6 +210,7 @@ export default async function TestbibliotekSubjectPage({
           </div>
         </section>
       )}
+      <div className="h-32" aria-hidden="true" />
     </div>
   );
 }
