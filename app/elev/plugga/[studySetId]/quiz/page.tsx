@@ -24,7 +24,7 @@ export default async function QuizPage({
 
   const { data: allQuestions } = await supabase
     .from("questions")
-    .select("id, question, question_type, answer_options")
+    .select("id, question, question_type, answer_options, image_url")
     .eq("study_set_id", params.studySetId)
     .eq("status", "published");
 
@@ -75,6 +75,7 @@ export default async function QuizPage({
     answer_options: Array.isArray(q.answer_options)
       ? shuffle(q.answer_options as string[])
       : null,
+    image_url: (q as { image_url?: string | null }).image_url ?? null,
   }));
 
   return (
