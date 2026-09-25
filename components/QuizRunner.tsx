@@ -15,6 +15,7 @@ type QuizQuestion = {
   question: string;
   question_type: "multiple_choice" | "true_false" | "short_answer" | "concept";
   answer_options: string[] | null;
+  image_url?: string | null;
 };
 
 type Feedback = {
@@ -214,6 +215,14 @@ export function QuizRunner({
       </div>
 
       <div className="notebook-card mt-4 p-6">
+        {current.image_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={current.image_url}
+            alt=""
+            className="mx-auto mb-4 max-h-64 w-auto rounded-xl border border-sand-deep bg-white object-contain"
+          />
+        )}
         <p className="text-lg font-medium text-navy">{current.question}</p>
 
         <div className="mt-6 space-y-2">
