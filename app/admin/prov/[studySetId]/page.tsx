@@ -186,6 +186,14 @@ export default async function StudySetReviewPage({
             <div key={q.id} className="notebook-card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
+                  {q.image_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={q.image_url}
+                      alt=""
+                      className="mb-2 max-h-24 w-auto rounded-lg border border-sand-deep bg-white object-contain"
+                    />
+                  )}
                   <p className="font-medium text-navy">{q.question}</p>
 
                   {options ? (
