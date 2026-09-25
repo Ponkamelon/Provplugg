@@ -331,6 +331,7 @@ export type Database = {
           explanation: string | null;
           grade_level: number | null;
           id: string;
+          image_url: string | null;
           importance: Database["public"]["Enums"]["importance_level"];
           knowledge_unit: string | null;
           question: string;
@@ -350,6 +351,7 @@ export type Database = {
           explanation?: string | null;
           grade_level?: number | null;
           id?: string;
+          image_url?: string | null;
           importance?: Database["public"]["Enums"]["importance_level"];
           knowledge_unit?: string | null;
           question: string;
@@ -369,6 +371,7 @@ export type Database = {
           explanation?: string | null;
           grade_level?: number | null;
           id?: string;
+          image_url?: string | null;
           importance?: Database["public"]["Enums"]["importance_level"];
           knowledge_unit?: string | null;
           question?: string;
