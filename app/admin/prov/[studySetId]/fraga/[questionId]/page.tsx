@@ -107,6 +107,31 @@ export default async function EditQuestionPage({
           />
         </div>
 
+        <div>
+          <label htmlFor="imageUrl" className="field-label">
+            Bild-URL (valfritt)
+          </label>
+          {question.image_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={question.image_url}
+              alt=""
+              className="mb-2 max-h-40 w-auto rounded-xl border border-sand-deep bg-white object-contain"
+            />
+          )}
+          <input
+            id="imageUrl"
+            name="imageUrl"
+            type="url"
+            defaultValue={question.image_url ?? ""}
+            className="field-input"
+            placeholder="https://..."
+          />
+          <p className="mt-1 text-xs text-navy/50">
+            Visas ovanför frågan för eleven. Lämna tomt för ingen bild.
+          </p>
+        </div>
+
         <div className="flex gap-3">
           <button type="submit" className="btn-primary flex-1">
             Spara
