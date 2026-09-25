@@ -66,6 +66,7 @@ export async function updateQuestionAction(
   const correctAnswer = String(formData.get("correctAnswer") ?? "").trim();
   const explanation = String(formData.get("explanation") ?? "").trim();
   const questionType = String(formData.get("questionType") ?? "");
+  const imageUrl = String(formData.get("imageUrl") ?? "").trim();
 
   const options = [
     formData.get("option0"),
@@ -83,6 +84,7 @@ export async function updateQuestionAction(
       correct_answer: correctAnswer,
       explanation,
       answer_options: questionType === "multiple_choice" ? options : null,
+      image_url: imageUrl || null,
       // En admin som manuellt redigerar en fråga har i praktiken granskat den.
       verification_status: "verified",
     })
