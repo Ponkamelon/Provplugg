@@ -79,6 +79,66 @@
     @apply inline-flex items-center justify-center rounded-full bg-turquoise px-6 py-3 font-sans font-semibold text-navy shadow-card transition-transform hover:opacity-90 active:scale-[0.98];
   }
 
+  /* ───── Skrivklura ─────
+     Samma app, men med diskret avvikande ram och bakgrund så eleven
+     direkt ser "nu skriver jag": linjerat papper istället för slät sand,
+     och bläckfärgad marginal på korten. Sidorna sätter data-skrivklura
+     på sin yttersta div — bakgrunden byts på elevlayoutens skal via
+     :has(), så layout.tsx behöver inte känna till temat. */
+  body:has([data-skrivklura]) .min-h-screen.bg-sand {
+    background-color: #f1ebdc;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 31px,
+      rgba(91, 75, 158, 0.07) 31px,
+      rgba(91, 75, 158, 0.07) 32px
+    );
+  }
+
+  .skriv-card {
+    @apply relative rounded-card bg-white/90 shadow-card;
+    border: 1px solid rgba(91, 75, 158, 0.3);
+    border-left: 6px solid theme("colors.ink.DEFAULT");
+  }
+
+  /* Marginallinjen från ett kollegieblock, precis innanför ramen. */
+  .skriv-card::before {
+    content: "";
+    position: absolute;
+    top: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.375rem;
+    width: 1px;
+    background: rgba(255, 107, 74, 0.35);
+  }
+
+  .skriv-badge {
+    @apply inline-block whitespace-nowrap rounded-full bg-ink-soft px-2 py-0.5 text-xs font-medium text-ink-dark;
+  }
+
+  .skriv-chip {
+    @apply rounded-full border border-ink/30 bg-white px-3 py-2 text-left text-sm font-medium text-ink-dark transition-colors hover:bg-ink-soft active:scale-[0.98];
+  }
+
+  /* Vald bricka: ren CSS med högre specificitet än .skriv-chip, så att
+     hover-färgen aldrig kan ta över och göra texten oläslig. */
+  .skriv-chip.skriv-chip-active,
+  .skriv-chip.skriv-chip-active:hover {
+    border-color: theme("colors.ink.DEFAULT");
+    background-color: theme("colors.ink.DEFAULT");
+    color: #fff;
+  }
+
+  .skriv-stuck {
+    @apply inline-flex items-center justify-center rounded-full border-2 border-dashed border-ink/50 px-4 py-2 text-sm font-semibold text-ink-dark transition-colors hover:bg-ink-soft;
+  }
+
+  /* Skrivytan: vitt papper, generös radhöjd, lugn fokusram. */
+  .skriv-paper {
+    @apply block w-full resize-y rounded-xl border border-sand-deep bg-white px-4 py-3 text-lg leading-relaxed text-navy placeholder:text-navy/40 focus:border-ink focus:outline-none;
+  }
+
   .field-label {
     @apply mb-1 block text-sm font-medium text-navy/80;
   }
