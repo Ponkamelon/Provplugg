@@ -31,6 +31,8 @@ export default async function NationellaProvPage() {
         .select("id, title, set_type, sort_order, chapter_id")
         .in("id", assignedIds)
         .eq("is_official", true)
+        // Skrivövningar är också officiella men visas på /elev/skrivklura.
+        .neq("set_type", "skriv")
         .eq("status", "published")
     : { data: [] as StudySetRow[] };
 
