@@ -17,7 +17,7 @@ export default async function ElevDashboard() {
   const { data: allStudySets } = studySetIds.length
     ? await supabase
         .from("study_sets")
-        .select("id, title, status, exam_date, chapter_id, is_official")
+        .select("id, title, status, exam_date, chapter_id, is_official, set_type")
         .in("id", studySetIds)
         .eq("status", "published")
     : {
@@ -28,13 +28,19 @@ export default async function ElevDashboard() {
           exam_date: string | null;
           chapter_id: string;
           is_official: boolean;
+          set_type: string;
         }[],
       };
 
   // Nationella prov (is_official) har flyttat till sin egen sida,
   // /elev/nationella — visas bara som en genväg härifrån.
   const studySets = (allStudySets ?? []).filter((s) => !s.is_official);
-  const hasNationella = (allStudySets ?? []).some((s) => s.is_official);
+  // Skrivklura (set_type = 'skriv') är också officiellt innehåll men har
+  // sin egen sida, /elev/skrivklura, och räknas inte som nationella prov.
+  const hasNationella = (allStudySets ?? []).some(
+    (s) => s.is_official && s.set_type !== "skriv",
+  );
+  const hasSkrivklura = (allStudySets ?? []).some((s) => s.set_type === "skriv");
 
   const chapterIds = [...new Set(studySets.map((s) => s.chapter_id))];
 
@@ -94,9 +100,24 @@ export default async function ElevDashboard() {
         </Link>
       )}
 
+      {hasSkrivklura && (
+        <Link
+          href="/elev/skrivklura"
+          className="skriv-card mt-4 flex items-center justify-between gap-3 p-4 transition-transform hover:-translate-y-0.5"
+        >
+          <div>
+            <p className="font-medium text-navy">Skrivklura</p>
+            <p className="text-sm text-navy/60">
+              Träna på att skriva, en liten bit i taget
+            </p>
+          </div>
+          <span className="text-navy/40">→</span>
+        </Link>
+      )}
+
       {!studySets.length ? (
         <p className="mt-6 text-navy/70">
-          {hasNationella
+          {hasNationella || hasSkrivklura
             ? "Inga andra pluggprojekt tilldelade än."
             : "Inga pluggprojekt tilldelade än. När din admin lägger till ett prov dyker det upp här."}
         </p>
