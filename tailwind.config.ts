@@ -26,6 +26,11 @@ const config: Config = {
           dark: "#E0522F",
         },
         sun: "#F4B942", // framgång, guldmedalj, highlights
+        ink: {
+          DEFAULT: "#5B4B9E", // Skrivklura — bläck: accent för skrivövningar
+          dark: "#43377A",
+          soft: "#EEEAF8",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],
