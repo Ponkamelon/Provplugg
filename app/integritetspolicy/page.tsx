@@ -61,6 +61,11 @@ export default function IntegritetspolicyPage() {
             för att generera frågor (till exempel anteckningar eller
             instuderingsfrågor).
           </p>
+          <p className="mt-2">
+            <strong>Elevens texter i Skrivklura:</strong> texterna eleven
+            skriver i skrivövningarna och den feedback eleven får, så att
+            eleven kan se hur långt hen har kommit.
+          </p>
         </section>
 
         <section>
@@ -98,8 +103,11 @@ export default function IntegritetspolicyPage() {
           <p className="mt-2">
             <strong>Anthropic</strong> — det uppladdade studiematerialet
             skickas till Anthropics AI-tjänst för att generera frågor. Vi
-            skickar inte elevers namn, resultat eller svar dit — bara
-            studiematerialet i sig.
+            skickar inte elevers namn, resultat eller quizsvar dit — bara
+            studiematerialet i sig. I Skrivklura skickas även texten som
+            eleven själv skriver dit, utan namn eller andra uppgifter om
+            eleven, för att eleven ska få kort feedback på textens
+            uppbyggnad.
           </p>
           <p className="mt-2">
             <strong>Vercel</strong> — driftar och hostar applikationen.
