@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { WaveDivider } from "@/components/WaveDivider";
 import { OfficialBadge } from "@/components/OfficialBadge";
+import { SkrivBadge } from "@/components/SkrivBadge";
 import { getSubjectVisual } from "@/lib/subjectVisuals";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +13,7 @@ import {
 type StudySetRow = {
   id: string;
   title: string;
-  set_type: "deltest" | "sluttest" | "ovrigt";
+  set_type: "deltest" | "sluttest" | "ovrigt" | "skriv";
   sort_order: number;
 };
 
@@ -96,26 +97,42 @@ export default async function TestbibliotekSubjectPage({
 
   const deltester = studySets.filter((s) => s.set_type === "deltest");
   const sluttest = studySets.filter((s) => s.set_type === "sluttest");
+  const skrivovningar = studySets.filter((s) => s.set_type === "skriv");
+  // Ett rent Skrivklura-ämne har inga quiz — visa då inte tomma rubriker.
+  const onlyWriting = skrivovningar.length > 0 && !deltester.length && !sluttest.length;
 
   function TestRow({ set }: { set: StudySetRow }) {
     const shares = assignmentsBySet.get(set.id) ?? [];
     const sharedStudentIds = new Set(shares.map((s) => s.student_id));
     const availableStudents = (students ?? []).filter((s) => !sharedStudentIds.has(s.id));
 
+    const isWriting = set.set_type === "skriv";
+
     return (
       <div
-        className="notebook-card scroll-mb-24 p-4"
-        style={{ borderLeft: `6px solid ${subjectVisual.color}` }}
+        className={`${isWriting ? "skriv-card" : "notebook-card"} scroll-mb-24 p-4`}
+        style={isWriting ? undefined : { borderLeft: `6px solid ${subjectVisual.color}` }}
       >
         <div className="flex items-center justify-between gap-3">
           <p className="font-medium text-navy">{set.title}</p>
           <div className="flex shrink-0 items-center gap-2">
-            <OfficialBadge />
-            <span className="whitespace-nowrap text-xs text-navy/50">
-              {countByStudySet.get(set.id) ?? 0} frågor
-            </span>
+            {isWriting ? (
+              <SkrivBadge />
+            ) : (
+              <>
+                <OfficialBadge />
+                <span className="whitespace-nowrap text-xs text-navy/50">
+                  {countByStudySet.get(set.id) ?? 0} frågor
+                </span>
+              </>
+            )}
           </div>
         </div>
+        {isWriting && (
+          <p className="mt-1 text-sm text-navy/60">
+            Lär → Träna → Testa. Eleven väljer 5, 10 eller 20 minuter.
+          </p>
+        )}
 
         {shares.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
@@ -185,18 +202,33 @@ export default async function TestbibliotekSubjectPage({
       </h1>
       <WaveDivider className="mt-2 h-3 w-24" color="#FF6B4A" />
 
-      <section className="mt-8">
-        <h2 className="font-display text-xl font-semibold text-navy">
-          Deltester
-        </h2>
-        <div className="mt-4 space-y-3">
-          {deltester.length ? (
-            deltester.map((set) => <TestRow key={set.id} set={set} />)
-          ) : (
-            <p className="text-navy/60">Inga deltester ännu.</p>
-          )}
-        </div>
-      </section>
+      {skrivovningar.length > 0 && (
+        <section className="mt-8">
+          <h2 className="font-display text-xl font-semibold text-navy">
+            Skrivövningar
+          </h2>
+          <div className="mt-4 space-y-3">
+            {skrivovningar.map((set) => (
+              <TestRow key={set.id} set={set} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!onlyWriting && (
+        <section className="mt-8">
+          <h2 className="font-display text-xl font-semibold text-navy">
+            Deltester
+          </h2>
+          <div className="mt-4 space-y-3">
+            {deltester.length ? (
+              deltester.map((set) => <TestRow key={set.id} set={set} />)
+            ) : (
+              <p className="text-navy/60">Inga deltester ännu.</p>
+            )}
+          </div>
+        </section>
+      )}
 
       {sluttest.length > 0 && (
         <section className="mt-10">
