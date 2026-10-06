@@ -2,15 +2,22 @@ import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { QuizRunner } from "@/components/QuizRunner";
+import {
+  selectQuestions,
+  shuffle,
+  shuffleOptions,
+  type ProgressInfo,
+} from "@/lib/quiz/selection";
 
-function shuffle<T>(arr: T[]): T[] {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
+type QuestionRow = {
+  id: string;
+  question: string;
+  question_type: "multiple_choice" | "true_false" | "short_answer" | "concept";
+  answer_options: unknown;
+  image_url?: string | null;
+};
+
+type ProgressRow = { question_id: string } & ProgressInfo;
 
 export default async function QuizPage({
   params,
@@ -22,50 +29,59 @@ export default async function QuizPage({
   const profile = await requireProfile("student");
   const supabase = createClient();
 
-  const { data: allQuestions } = await supabase
-    .from("questions")
-    .select("id, question, question_type, answer_options, image_url")
-    .eq("study_set_id", params.studySetId)
-    .eq("status", "published");
+  // Frågor och elevens inställningar hämtas parallellt för snabbare start.
+  const [{ data: questionRows }, { data: prefs }] = await Promise.all([
+    supabase
+      .from("questions")
+      .select("id, question, question_type, answer_options, image_url")
+      .eq("study_set_id", params.studySetId)
+      .eq("status", "published"),
+    supabase
+      .from("student_preferences")
+      .select("feedback_timing")
+      .eq("student_id", profile.id)
+      .maybeSingle(),
+  ]);
 
-  if (!allQuestions?.length) {
+  const allQuestions = (questionRows ?? []) as unknown as QuestionRow[];
+
+  if (!allQuestions.length) {
     redirect(`/elev/plugga/${params.studySetId}`);
   }
 
-  const { data: progressRows } = await supabase
+  // Bara framstegen för just det här provets frågor behövs.
+  const { data: progressData } = await supabase
     .from("question_progress")
-    .select("question_id, mastery_level")
-    .eq("student_id", profile.id);
-
-  const { data: prefs } = await supabase
-    .from("student_preferences")
-    .select("feedback_timing")
+    .select("question_id, mastery_level, last_answered")
     .eq("student_id", profile.id)
-    .maybeSingle();
+    .in(
+      "question_id",
+      allQuestions.map((q) => q.id),
+    );
+  const progressRows = (progressData ?? []) as unknown as ProgressRow[];
 
   const feedbackTiming =
     prefs?.feedback_timing === "end_of_test" ? "end_of_test" : "immediate";
 
-  const progressMap = new Map(progressRows?.map((p) => [p.question_id, p.mastery_level]));
+  const progressMap = new Map<string, ProgressInfo>(
+    progressRows.map((p): [string, ProgressInfo] => [
+      p.question_id,
+      { mastery_level: p.mastery_level, last_answered: p.last_answered },
+    ]),
+  );
 
-  let pool = allQuestions!;
+  let pool = allQuestions;
 
   if (searchParams.mode === "mistakes") {
-    pool = pool.filter((q) => progressMap.get(q.id) === "needs_practice");
+    pool = shuffle(
+      pool.filter((q) => progressMap.get(q.id)?.mastery_level === "needs_practice"),
+    );
     if (!pool.length) redirect(`/elev/plugga/${params.studySetId}`);
   } else {
-    // Enkel adaptiv prioritering (sektion 46): tidigare fel först, sen
-    // otestat, sen redan säkra frågor sist.
+    // Adaptivt urval ur hela poolen (sektion 46): tidigare fel får förtur,
+    // otestat dras oftare än det eleven redan kan, och ordningen blandas.
     const length = Number(searchParams.length) || 10;
-    const needsPractice = shuffle(pool.filter((q) => progressMap.get(q.id) === "needs_practice"));
-    const untried = shuffle(pool.filter((q) => !progressMap.has(q.id)));
-    const rest = shuffle(
-      pool.filter((q) => {
-        const level = progressMap.get(q.id);
-        return level === "mastered" || level === "learning";
-      }),
-    );
-    pool = [...needsPractice, ...untried, ...rest].slice(0, length);
+    pool = selectQuestions(pool, progressMap, length);
   }
 
   const preparedQuestions = pool.map((q) => ({
@@ -73,9 +89,9 @@ export default async function QuizPage({
     question: q.question,
     question_type: q.question_type,
     answer_options: Array.isArray(q.answer_options)
-      ? shuffle(q.answer_options as string[])
+      ? shuffleOptions(q.answer_options as string[])
       : null,
-    image_url: (q as { image_url?: string | null }).image_url ?? null,
+    image_url: q.image_url ?? null,
   }));
 
   return (
